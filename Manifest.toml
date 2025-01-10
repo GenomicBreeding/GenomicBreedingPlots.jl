@@ -607,7 +607,7 @@ version = "1.11.0"
 
 [[deps.GBCore]]
 deps = ["DataFrames", "Distributions", "Documenter", "LinearAlgebra", "Metida", "MixedModels", "Plots", "PrecompileTools", "ProgressMeter", "Random", "Statistics", "StatsBase", "StatsModels", "StatsPlots", "UnicodePlots"]
-git-tree-sha1 = "7986d6763583e2816f08b1d5e6e44b697664431f"
+git-tree-sha1 = "f91e4097387f759248b61995185cdcd5cbd3dc9c"
 repo-rev = "main"
 repo-url = "https://github.com/GenomicBreeding/GBCore.jl"
 uuid = "50d95318-1838-4cfa-a614-3543b4bb0509"
