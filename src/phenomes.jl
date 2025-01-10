@@ -13,7 +13,7 @@ rm.(fnames)
 """
 function plotstatic(type::Type{T}, phenomes::Phenomes)::T where {T<:DistributionPlots}
     # type = DistributionPlots; phenomes = Phenomes(n=10, t=3); phenomes.entries = string.("entry_", 1:10); phenomes.populations .= "pop_1"; phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(10,3); phenomes.phenotypes[1, 1] = missing;
-    df = GBCore.tabularise(phenomes)
+    df = tabularise(phenomes)
     populations::Vector{String} = unique(df.populations)
     labels = Vector{String}(undef, length(phenomes.traits) + (length(phenomes.traits) * length(populations)))
     plots = Vector{Plots.Plot}(undef, length(labels))
@@ -71,7 +71,7 @@ function plotstatic(type::Type{T}, phenomes::Phenomes)::T where {T<:ViolinPlots}
     if !checkdims(phenomes)
         throw(ArgumentError("Phenomes struct is corrupted."))
     end
-    df = GBCore.tabularise(phenomes)
+    df = tabularise(phenomes)
     labels = Vector{String}(undef, 1 + length(phenomes.traits))
     plots = Vector{Plots.Plot}(undef, length(labels))
     i::Int64 = 0
@@ -142,7 +142,7 @@ function plotstatic(type::Type{T}, phenomes::Phenomes; color_scheme::Symbol = :Y
     if !checkdims(phenomes)
         throw(ArgumentError("Phenomes struct is corrupted."))
     end
-    df = GBCore.tabularise(phenomes)
+    df = tabularise(phenomes)
     populations = unique(phenomes.populations)
     labels = Vector{String}(undef, 1 + length(populations))
     plots = Vector{Plots.Plot}(undef, length(labels))
@@ -207,7 +207,7 @@ function GBPlots.plotstatic(type::Type{T}, phenomes::Phenomes; color_scheme::Sym
     if !checkdims(phenomes)
         throw(ArgumentError("Phenomes struct is corrupted."))
     end
-    df = GBCore.tabularise(phenomes)
+    df = tabularise(phenomes)
     populations = unique(phenomes.populations)
     labels::Vector{String} = fill("", 1 + length(populations))
     plots = Vector{Plots.Plot}(undef, length(labels))
