@@ -3,7 +3,7 @@ module GBPlots
 using GBCore
 using StatsBase, Distributions, LinearAlgebra
 using DataFrames
-using Plots, StatsPlots
+using Plots, StatsPlots, Distances, Clustering, Measures
 using Genie
 using PrecompileTools: @compile_workload
 
@@ -13,7 +13,7 @@ include("phenomes.jl")
 # include("trials.jl")
 # include("tebv.jl")
 
-export PlotsGB, DistributionPlots, ViolinPlots
+export PlotsGB, DistributionPlots, ViolinPlots, CorHeatPlots, TreePlots
 export checkdims, labeltofname, saveplots
 export plotstatic, plotinteractive
 

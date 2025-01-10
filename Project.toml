@@ -4,22 +4,35 @@ authors = ["jeffersonparil@gmail.com"]
 version = "1.0.0-DEV"
 
 [deps]
+Clustering = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 GBCore = "50d95318-1838-4cfa-a614-3543b4bb0509"
 Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
+JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Measures = "442fdcdd-2543-5da2-b0f3-8c86c306513e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
+[sources]
+GBCore = {rev = "main", url = "https://github.com/GenomicBreeding/GBCore.jl"}
+
 [compat]
+Clustering = "0.15.8"
 DataFrames = "1.7.0"
+Distances = "0.10.12"
 Distributions = "0.25.116"
+Documenter = "1.8.0"
 GBCore = "1.0.0"
 Genie = "5.20.0"
+JuliaFormatter = "1.0.62"
 LinearAlgebra = "1.11.0"
+Measures = "0.3.2"
 Plots = "1.40.9"
 PrecompileTools = "1.2.1"
 StatsBase = "0.34.4"

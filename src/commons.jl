@@ -10,7 +10,17 @@ mutable struct ViolinPlots <: PlotsGB
     plots::Vector{Plots.Plot}
 end
 
-function checkdims(x::PlotsGB)::Bool
+mutable struct CorHeatPlots <: PlotsGB
+    labels::Vector{String}
+    plots::Vector{Plots.Plot}
+end
+
+mutable struct TreePlots <: PlotsGB
+    labels::Vector{String}
+    plots::Vector{Plots.Plot}
+end
+
+function GBCore.checkdims(x::PlotsGB)::Bool
     length(x.labels) == length(x.plots)
 end
 
@@ -38,7 +48,7 @@ function saveplots(
     idx::Vector{Int64} = [0],
     format::String = "svg",
     prefix::String = "plotout",
-    use_labels::Bool = false,
+    use_labels::Bool = true,
 )::Vector{String}
     # phenomes = Phenomes(n=10, t=3); phenomes.entries = string.("entry_", 1:10); phenomes.populations .= "pop_1"; phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(10,3);
     # plots = plotstatic(DistributionPlots, phenomes); idx = [1, 3, 5]; format = "svg"; prefix = "plotout-"; use_labels = false;

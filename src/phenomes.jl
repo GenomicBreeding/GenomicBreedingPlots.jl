@@ -1,8 +1,15 @@
 """
+    plotstatic(type::Type{T}, phenomes::Phenomes)::T where {T<:DistributionPlots}
+
+Plot distributions of each trait across populations and per population
+
+# Examples
+```julia
 phenomes = Phenomes(n=100, t=3); phenomes.entries = string.("entry_", 1:100); phenomes.populations .= "pop_1"; phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 100)'; phenomes.phenotypes[1, 1] = missing;
 x = plotstatic(DistributionPlots, phenomes)
 fnames = saveplots(x)
 rm.(fnames)
+```
 """
 function plotstatic(type::Type{T}, phenomes::Phenomes)::T where {T<:DistributionPlots}
     # type = DistributionPlots; phenomes = Phenomes(n=10, t=3); phenomes.entries = string.("entry_", 1:10); phenomes.populations .= "pop_1"; phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(10,3); phenomes.phenotypes[1, 1] = missing;
@@ -47,14 +54,21 @@ end
 
 
 """
+    plotstatic(type::Type{T}, phenomes::Phenomes)::T where {T<:ViolinPlots}
+
+Violin plots across populations and per population across traits
+
+# Examples
+```julia
 phenomes = Phenomes(n=100, t=3); phenomes.entries = string.("entry_", 1:100); phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace=true); phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 100)'; phenomes.phenotypes[1, 1] = missing;
 x = plotstatic(ViolinPlots, phenomes)
 fnames = saveplots(x)
 rm.(fnames)
+```
 """
 function plotstatic(type::Type{T}, phenomes::Phenomes)::T where {T<:ViolinPlots}
     # type = DistributionPlots; phenomes = Phenomes(n=100, t=3); phenomes.entries = string.("entry_", 1:100); phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace=true); phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 100)'; phenomes.phenotypes[1, 1] = missing;
-    if !GBCore.checkdims(phenomes)
+    if !checkdims(phenomes)
         throw(ArgumentError("Phenomes struct is corrupted."))
     end
     df = GBCore.tabularise(phenomes)
@@ -109,6 +123,164 @@ function plotstatic(type::Type{T}, phenomes::Phenomes)::T where {T<:ViolinPlots}
     out::type = ViolinPlots(labels, plots)
     out
 end
+
+"""
+    plotstatic(type::Type{T}, phenomes::Phenomes; color_scheme::Symbol=:YlGn)::T where {T<:CorHeatPlots}
+
+Trait correlation heatmaps across populations and per population
+
+# Examples
+```julia
+phenomes = Phenomes(n=100, t=3); phenomes.entries = string.("entry_", 1:100); phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace=true); phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 100)'; phenomes.phenotypes[1, 1] = missing;
+x = plotstatic(CorHeatPlots, phenomes, color_scheme=:viridis)
+fnames = saveplots(x)
+rm.(fnames)
+```
+"""
+function plotstatic(type::Type{T}, phenomes::Phenomes; color_scheme::Symbol = :YlGn)::T where {T<:CorHeatPlots}
+    # type = CorHeatPlots; phenomes = Phenomes(n=100, t=3); phenomes.entries = string.("entry_", 1:100); phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace=true); phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 100)'; phenomes.phenotypes[1, 1] = missing; color_scheme::Symbol=:YlGn
+    if !checkdims(phenomes)
+        throw(ArgumentError("Phenomes struct is corrupted."))
+    end
+    df = GBCore.tabularise(phenomes)
+    populations = unique(phenomes.populations)
+    labels = Vector{String}(undef, 1 + length(populations))
+    plots = Vector{Plots.Plot}(undef, length(labels))
+    # Plot across populations and per population
+    i::Int64 = 0
+    for pop in vcat("All populations", populations)
+        # pop = populations[1]
+        i += 1
+        if pop == "All populations"
+            idx = collect(1:size(df, 1))
+        else
+            idx = findall(df.populations .== pop)
+        end
+        X = Matrix(df[idx, Symbol.(phenomes.traits)])
+        idx = findall(.!ismissing.(sum(X, dims = 2)[:, 1]))
+        labels[i] = string("Population: ", pop, "\n(n=", length(idx), ")")
+        C = cor(X[idx, :])
+        C = C[reverse(collect(1:end)), :]
+        p = Plots.heatmap(
+            C,
+            color = color_scheme,
+            title = labels[i],
+            titlefont = font(10),
+            clim = (-1, 1),
+            xmirror = true,
+            xrotation = 0,
+            xticks = (collect(1:length(phenomes.traits)), phenomes.traits),
+            yticks = (reverse(collect(1:length(phenomes.traits))), phenomes.traits),
+        )
+        annotate!(p, [(j, i, text(round(C[i, j], digits = 3), 8)) for i in axes(C, 1) for j in axes(C, 2)])
+        # gui(p)
+        plots[i] = p
+    end
+    out::type = CorHeatPlots(labels, plots)
+    out
+end
+
+
+"""
+    plotstatic(type::Type{T}, phenomes::Phenomes; color_scheme::Symbol=:YlGn)::T where {T<:TreePlots}
+
+Plot tree diagrams showing the relationships of each entry using trait information.
+
+- Distance metric: Euclidean
+- Grouping/linkage: Ward's distance
+- Branch order: Optimal (Bar-Joseph et al, 2001. Bionformatics.)
+
+# Examples
+```julia
+phenomes = Phenomes(n=100, t=3); phenomes.entries = string.("entry_", 1:100); phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 100)'; 
+Ψ::Matrix{Float64} = phenomes.phenotypes;
+groups = Clustering.kmeans(Ψ', 5);
+phenomes.populations = string.("pop_", groups.assignments); 
+phenomes.phenotypes[1, 1] = missing;
+x = plotstatic(TreePlots, phenomes)
+fnames = saveplots(x)
+rm.(fnames)
+```
+"""
+function GBPlots.plotstatic(type::Type{T}, phenomes::Phenomes; color_scheme::Symbol = :default)::T where {T<:TreePlots}
+    # type = TreePlots; phenomes = Phenomes(n=10, t=3); phenomes.entries = string.("entry_", 1:10); phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 10, replace=true); phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 10)'; phenomes.phenotypes[1, 1] = missing; color_scheme::Symbol=:default;
+    if !checkdims(phenomes)
+        throw(ArgumentError("Phenomes struct is corrupted."))
+    end
+    df = GBCore.tabularise(phenomes)
+    populations = unique(phenomes.populations)
+    labels::Vector{String} = fill("", 1 + length(populations))
+    plots = Vector{Plots.Plot}(undef, length(labels))
+    # Plot across populations and per population
+    colors_per_population = palette(color_scheme)[1:length(populations)]
+    colors = Vector{RGB{Float64}}(undef, length(phenomes.populations))
+    for i in eachindex(phenomes.populations)
+        # i, p = 1, phenomes.populations[1]
+        colors[i] = colors_per_population[findall(populations .== phenomes.populations[i])[1]]
+    end
+    i::Int64 = 0
+    for pop in vcat("All populations", populations)
+        # pop = "All populations"
+        # pop = populations[1]
+        # println(pop)
+        i += 1
+        if pop == "All populations"
+            idx_entries_1 = collect(1:size(df, 1))
+        else
+            idx_entries_1 = findall(df.populations .== pop)
+        end
+        X = Matrix(df[idx_entries_1, Symbol.(phenomes.traits)])
+        # Omit entries with at least one missing phenotype
+        idx_entries_2 = findall(.!ismissing.(sum(X, dims = 2)[:, 1]))
+        if length(idx_entries_2) < 2
+            continue
+        end
+        X = X[idx_entries_2, :]
+        # Omit traits with zero variance
+        idx_traits = findall(std(X, dims = 1)[1, :] .> 1e-20)
+        if length(idx_traits) < 2
+            continue
+        end
+        X = X[:, idx_traits]
+        # Normalise
+        X = (X .- mean(X, dims = 1)) ./ std(X, dims = 1)
+        # Plot
+        labels[i] = string("Population: ", pop, "\n(n=", size(X, 1), "; t=", size(X, 2), ")")
+        clusters = Clustering.hclust(
+            Distances.pairwise(Distances.Euclidean(), X, dims = 1),
+            linkage = :ward,
+            branchorder = :optimal,
+        )
+        p = Plots.plot(
+            clusters,
+            xticks = (1:length(idx_entries_2), phenomes.entries[idx_entries_1][idx_entries_2][clusters.order]),
+            xrotation = 90,
+            title = labels[i],
+            top_margin = 7mm,
+            bottom_margin = 1.25 * maximum(length.(phenomes.entries))mm,
+        )
+        if pop == "All populations"
+            cols = colors[idx_entries_1][idx_entries_2][clusters.order]
+            xt, xl = Plots.xticks(p)[1]
+            yl = Plots.ylims(p)
+            # y0 = @. zero(xt) + yl[1] - 0.06*(yl[2] - yl[1])
+            y0 = zeros(length(xl)) .- 0.05
+            xticks!(xt, fill(" ", size(phenomes.entries)))
+            for (xi, yi, li, ci) in zip(xt, y0, xl, cols)
+                annotate!(xi, yi, text(li, 8, ci, :right, rotation = 90))
+            end
+        end
+        # Plots.gui(p)
+        plots[i] = p
+    end
+    # Remove skipped populations
+    idx = findall(labels .!= "")
+    # Output
+    out::type = TreePlots(labels[idx], plots[idx])
+    out
+end
+
+
 
 
 function plotinteractive(phenomes::Phenomes)
