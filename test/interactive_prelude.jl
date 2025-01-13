@@ -1,6 +1,6 @@
 using Pkg
 Pkg.activate(".")
-Pkg.add(url="https://github.com/GenomicBreeding/GBCore.jl")
+Pkg.add(url = "https://github.com/GenomicBreeding/GBCore.jl")
 using GBPlots
 using GBCore
 using StatsBase, Distributions, LinearAlgebra
