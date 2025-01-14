@@ -138,7 +138,8 @@ rm.(fnames)
 ```
 """
 function plotstatic(type::Type{T}, phenomes::Phenomes; color_scheme::Symbol = :YlGn)::T where {T<:CorHeatPlots}
-    # type = CorHeatPlots; phenomes = Phenomes(n=100, t=3); phenomes.entries = string.("entry_", 1:100); phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace=true); phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 100)'; phenomes.phenotypes[1, 1] = missing; color_scheme::Symbol=:YlGn
+    # type = CorHeatPlots; phenomes = Phenomes(n=100, t=3); phenomes.entries = string.("entry_", 1:100); phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace=true); phenomes.traits = ["trait_1", "trait_2", "long_trait_name number 3"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 100)'; phenomes.phenotypes[1, 1] = missing; color_scheme::Symbol=:YlGn
+    # type = CorHeatPlots; phenomes = Phenomes(n=100, t=3); phenomes.entries = string.("entry_", 1:100); phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace=true); phenomes.traits = ["trait_1", "trait_2", "trait_3"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 100)'; phenomes.phenotypes[1, 1] = missing; color_scheme::Symbol=:YlGn
     if !checkdims(phenomes)
         throw(ArgumentError("Phenomes struct is corrupted."))
     end
@@ -168,9 +169,11 @@ function plotstatic(type::Type{T}, phenomes::Phenomes; color_scheme::Symbol = :Y
             titlefont = font(10),
             clim = (-1, 1),
             xmirror = true,
-            xrotation = 0,
+            xrotation = -45,
+            yrotation = 0,
             xticks = (collect(1:length(phenomes.traits)), phenomes.traits),
             yticks = (reverse(collect(1:length(phenomes.traits))), phenomes.traits),
+            top_margin = (maximum(length.(phenomes.traits)))mm
         )
         annotate!(p, [(j, i, text(round(C[i, j], digits = 3), 8)) for i in axes(C, 1) for j in axes(C, 2)])
         # gui(p)
@@ -202,7 +205,7 @@ fnames = saveplots(x)
 rm.(fnames)
 ```
 """
-function GBPlots.plotstatic(type::Type{T}, phenomes::Phenomes; color_scheme::Symbol = :default)::T where {T<:TreePlots}
+function plotstatic(type::Type{T}, phenomes::Phenomes; color_scheme::Symbol = :default)::T where {T<:TreePlots}
     # type = TreePlots; phenomes = Phenomes(n=10, t=3); phenomes.entries = string.("entry_", 1:10); phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 10, replace=true); phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 10)'; phenomes.phenotypes[1, 1] = missing; color_scheme::Symbol=:default;
     if !checkdims(phenomes)
         throw(ArgumentError("Phenomes struct is corrupted."))
@@ -253,13 +256,17 @@ function GBPlots.plotstatic(type::Type{T}, phenomes::Phenomes; color_scheme::Sym
         )
         p = Plots.plot(
             clusters,
+            size = (
+                600 + 10 * length(phenomes.entries),
+                400 + 10 * maximum(length.(phenomes.entries)),
+            ),
             xticks = (1:length(idx_entries_2), phenomes.entries[idx_entries_1][idx_entries_2][clusters.order]),
             xrotation = 90,
             title = labels[i],
-            top_margin = 7mm,
-            bottom_margin = 1.25 * maximum(length.(phenomes.entries))mm,
+            top_margin = 12mm,
+            bottom_margin = 1.75 * maximum(length.(phenomes.entries))mm,
         )
-        if pop == "All populations"
+        # if pop == "All populations"
             cols = colors[idx_entries_1][idx_entries_2][clusters.order]
             xt, xl = Plots.xticks(p)[1]
             yl = Plots.ylims(p)
@@ -269,7 +276,7 @@ function GBPlots.plotstatic(type::Type{T}, phenomes::Phenomes; color_scheme::Sym
             for (xi, yi, li, ci) in zip(xt, y0, xl, cols)
                 annotate!(xi, yi, text(li, 8, ci, :right, rotation = 90))
             end
-        end
+        # end
         # Plots.gui(p)
         plots[i] = p
     end
