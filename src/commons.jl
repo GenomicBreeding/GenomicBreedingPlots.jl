@@ -47,11 +47,11 @@ function saveplots(
     plots::PlotsGB;
     idx::Vector{Int64} = [0],
     format::String = "svg",
-    prefix::String = "plotout",
+    prefix::String = "",
     use_labels::Bool = true,
 )::Vector{String}
     # phenomes = Phenomes(n=10, t=3); phenomes.entries = string.("entry_", 1:10); phenomes.populations .= "pop_1"; phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(10,3);
-    # plots = plotstatic(DistributionPlots, phenomes); idx = [1, 3, 5]; format = "svg"; prefix = "plotout-"; use_labels = false;
+    # plots = plotstatic(DistributionPlots, phenomes); idx = [1, 3, 5]; format = "svg"; prefix = ""; use_labels = false;
     # Check arguments
     if !checkdims(plots)
         throw(ArgumentError("The plots::DistributionPlots is corrupted."))
@@ -64,6 +64,9 @@ function saveplots(
     end
     if (format != "svg") && (format != "png") && (format != "pdf")
         throw(ArgumentError("we accept the following file formats: 'svg', 'png' and 'pdf'."))
+    end
+    if prefix == ""
+        prefix = string(typeof(plots))
     end
     # Save the plots
     fnames = Vector{String}(undef, length(idx))

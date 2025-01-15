@@ -173,9 +173,21 @@ function plotstatic(type::Type{T}, phenomes::Phenomes; color_scheme::Symbol = :Y
             yrotation = 0,
             xticks = (collect(1:length(phenomes.traits)), phenomes.traits),
             yticks = (reverse(collect(1:length(phenomes.traits))), phenomes.traits),
-            top_margin = (maximum(length.(phenomes.traits)))mm
+            top_margin = (maximum(length.(phenomes.traits)))mm,
         )
-        annotate!(p, [(j, i, text(round(C[i, j], digits = 3), 8)) for i in axes(C, 1) for j in axes(C, 2)])
+        for i in axes(C, 1)
+            for j in axes(C, 2)
+                if C[i, j] <= -0.5
+                    annotate!(p, (j, i, text(round(C[i, j], digits = 3), 8, :red)))
+                elseif C[i, j] < 0.0
+                    annotate!(p, (j, i, text(round(C[i, j], digits = 3), 8, :purple)))
+                elseif C[i, j] < 0.5
+                    annotate!(p, (j, i, text(round(C[i, j], digits = 3), 8, :black)))
+                else
+                    annotate!(p, (j, i, text(round(C[i, j], digits = 3), 8, :white)))
+                end
+            end
+        end
         # gui(p)
         plots[i] = p
     end
@@ -249,34 +261,28 @@ function plotstatic(type::Type{T}, phenomes::Phenomes; color_scheme::Symbol = :d
         X = (X .- mean(X, dims = 1)) ./ std(X, dims = 1)
         # Plot
         labels[i] = string("Population: ", pop, "\n(n=", size(X, 1), "; t=", size(X, 2), ")")
-        clusters = Clustering.hclust(
-            Distances.pairwise(Distances.Euclidean(), X, dims = 1),
-            linkage = :ward,
-            branchorder = :optimal,
-        )
+        distances = Distances.pairwise(Distances.Euclidean(), X, dims = 1)
+        clusters = Clustering.hclust(distances, linkage = :ward, branchorder = :optimal)
         p = Plots.plot(
             clusters,
-            size = (
-                600 + 10 * length(phenomes.entries),
-                400 + 10 * maximum(length.(phenomes.entries)),
-            ),
+            xaxis = false,
             xticks = (1:length(idx_entries_2), phenomes.entries[idx_entries_1][idx_entries_2][clusters.order]),
-            xrotation = 90,
+            yrotation = 0,
+            yflip = true,
             title = labels[i],
-            top_margin = 12mm,
-            bottom_margin = 1.75 * maximum(length.(phenomes.entries))mm,
+            ylabel = "Euclidean distance",
+            permute = (:x, :y),
+            size = (400 + 10 * maximum(length.(phenomes.entries)), 600 + 10 * length(phenomes.entries)),
+            top_margin = 10mm,
+            right_margin = 1.75 * maximum(length.(phenomes.entries))mm,
         )
-        # if pop == "All populations"
-            cols = colors[idx_entries_1][idx_entries_2][clusters.order]
-            xt, xl = Plots.xticks(p)[1]
-            yl = Plots.ylims(p)
-            # y0 = @. zero(xt) + yl[1] - 0.06*(yl[2] - yl[1])
-            y0 = zeros(length(xl)) .- 0.05
-            xticks!(xt, fill(" ", size(phenomes.entries)))
-            for (xi, yi, li, ci) in zip(xt, y0, xl, cols)
-                annotate!(xi, yi, text(li, 8, ci, :right, rotation = 90))
-            end
-        # end
+        cols = colors[idx_entries_1][idx_entries_2][clusters.order]
+        yt, yl = Plots.yticks(p)[1]
+        y0 = zeros(length(yl)) .- 0.05
+        yticks!(yt, fill(" ", size(phenomes.entries)))
+        for (yi, xi, li, ci) in zip(yt, y0, yl, cols)
+            annotate!(xi, yi, text(li, 8, ci, :left, rotation = 0))
+        end
         # Plots.gui(p)
         plots[i] = p
     end

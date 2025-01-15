@@ -2,7 +2,7 @@
 
 julia_version = "1.11.2"
 manifest_format = "2.0"
-project_hash = "e3168eb2029ff043f863fc0ca0d9005869f5109f"
+project_hash = "ec5627cc3791a75c8ad30f178d9cafbe42b0dd1a"
 
 [[deps.ANSIColoredPrinters]]
 git-tree-sha1 = "574baf8110975760d391c710b6341da1afa48d8c"
@@ -516,6 +516,16 @@ git-tree-sha1 = "fd923962364b645f3719855c88f7074413a6ad92"
 uuid = "442a2c76-b920-505d-bb47-c5924d526838"
 version = "1.0.2"
 
+[[deps.FileIO]]
+deps = ["Pkg", "Requires", "UUIDs"]
+git-tree-sha1 = "2dd20384bf8c6d411b5c7370865b1e9b26cb2ea3"
+uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+version = "1.16.6"
+weakdeps = ["HTTP"]
+
+    [deps.FileIO.extensions]
+    HTTPExt = "HTTP"
+
 [[deps.FilePathsBase]]
 deps = ["Compat", "Dates"]
 git-tree-sha1 = "7878ff7172a8e6beedd1dea14bd27c3c6340d361"
@@ -607,10 +617,18 @@ version = "1.11.0"
 
 [[deps.GBCore]]
 deps = ["DataFrames", "Distributions", "Documenter", "LinearAlgebra", "Metida", "MixedModels", "Plots", "PrecompileTools", "ProgressMeter", "Random", "Statistics", "StatsBase", "StatsModels", "StatsPlots", "UnicodePlots"]
-git-tree-sha1 = "31a748f1dcdfa34492809826b9d429856061e8bf"
+git-tree-sha1 = "e3da8a46e48f8651a41cc23ca2967b54eff52495"
 repo-rev = "main"
 repo-url = "https://github.com/GenomicBreeding/GBCore.jl"
 uuid = "50d95318-1838-4cfa-a614-3543b4bb0509"
+version = "1.0.0-DEV"
+
+[[deps.GBIO]]
+deps = ["DataFrames", "Dates", "Documenter", "FileIO", "GBCore", "JLD2", "MixedModels", "PrecompileTools", "ProgressMeter", "Random", "StatsBase"]
+git-tree-sha1 = "9abcc5a7824e757a39f8a0373493bae8dcf2d8a4"
+repo-rev = "main"
+repo-url = "https://github.com/GenomicBreeding/GBIO.jl"
+uuid = "f6f5bf5f-7369-4de1-9a2f-51e3ce5e0754"
 version = "1.0.0-DEV"
 
 [[deps.GLFW_jll]]
@@ -779,6 +797,12 @@ version = "0.2.2"
 git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
 uuid = "82899510-4779-5014-852e-03e436cf321d"
 version = "1.0.0"
+
+[[deps.JLD2]]
+deps = ["FileIO", "MacroTools", "Mmap", "OrderedCollections", "PrecompileTools", "Requires", "TranscodingStreams"]
+git-tree-sha1 = "91d501cb908df6f134352ad73cde5efc50138279"
+uuid = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
+version = "0.5.11"
 
 [[deps.JLFzf]]
 deps = ["Pipe", "REPL", "Random", "fzf_jll"]
