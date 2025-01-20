@@ -67,7 +67,7 @@ rm.(fnames)
 ```
 """
 function plotstatic(type::Type{T}, phenomes::Phenomes)::T where {T<:ViolinPlots}
-    # type = DistributionPlots; phenomes = Phenomes(n=100, t=3); phenomes.entries = string.("entry_", 1:100); phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace=true); phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 100)'; phenomes.phenotypes[1, 1] = missing;
+    # type = ViolinPlots; phenomes = Phenomes(n=100, t=3); phenomes.entries = string.("entry_", 1:100); phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace=true); phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 100)'; phenomes.phenotypes[1, 1] = missing;
     if !checkdims(phenomes)
         throw(ArgumentError("Phenomes struct is corrupted."))
     end
@@ -78,7 +78,7 @@ function plotstatic(type::Type{T}, phenomes::Phenomes)::T where {T<:ViolinPlots}
     # Across all populations
     i += 1
     df_reshaped = DataFrames.stack(df, propertynames(df)[(end-(length(phenomes.traits)-1)):end])
-    idx = findall(.!ismissing.(df_reshaped[!, :value]))
+    idx = findall(.!ismissing.(df_reshaped[!, :value]) .&& .!isnan.(df_reshaped[!, :value])  .&& .!isinf.(df_reshaped[!, :value]))
     lengths = combine(groupby(df_reshaped[idx, :], :variable), :value => length)
     for x in eachrow(lengths)
         # x = eachrow(lengths)[1]
@@ -92,16 +92,18 @@ function plotstatic(type::Type{T}, phenomes::Phenomes)::T where {T<:ViolinPlots}
         xlabel = "Traits",
         ylabel = "Phenotype values",
         legend = false,
+        permute = (:x, :y),
     )
-    StatsPlots.@df df_reshaped[idx, :] StatsPlots.boxplot!(:variable, :value, fill = (0.5))
+    StatsPlots.@df df_reshaped[idx, :] StatsPlots.boxplot!(:variable, :value, fill = (0.5), permute = (:x, :y))
     # StatsPlots.@df df_reshaped[idx, :] StatsPlots.dotplot!(:variable, :value, fill=(0.5)); gui(p)
     plots[i] = p
     # Per trait
     for trait in Symbol.(phenomes.traits)
         # trait = Symbol.(phenomes.traits)[1]
         i += 1
+        println(i)
         df.pop = deepcopy(df.populations)
-        idx = findall(.!ismissing.(df[!, trait]))
+        idx = findall(.!ismissing.(df[!, trait]) .&& .!isnan.(df[!, trait])  .&& .!isinf.(df[!, trait]))
         lengths = combine(groupby(df[idx, :], :populations), trait => length)
         for x in eachrow(lengths)
             # x = eachrow(lengths)[1]
@@ -297,14 +299,39 @@ end
 
 
 function plotinteractive(phenomes::Phenomes)
-    # Genie Hello World!
-    # As simple as Hello
-    route("/hello") do
-        "Hello Genie!"
-    end
+    # phenomes = Phenomes(n=100, t=3); phenomes.entries = string.("entry_", 1:100); phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace=true); phenomes.traits = ["trait_1", "trait_2", "long_trait_name number 3"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 100)'; phenomes.phenotypes[1, 1] = missing;
+    df = tabularise(phenomes)
 
-    up(8888)
+    xname = names(df)[4]
+    yname = names(df)[5]
+    zname = names(df)[6]
 
-    down()
+    trace_1 = PlotlyBase.scatter(
+        x=df[!, xname],
+        y=df[!, yname],
+        mode="markers",
+        name=string(xname, " vs ", yname)
+    )
+    trace_2 = PlotlyBase.scatter(
+        x=df[!, xname],
+        y=df[!, zname],
+        mode="markers",
+        name=string(xname, " vs ", zname)
+    )
+    layout = PlotlyBase.Layout(
+        title="TEST",
+        xaxis=attr(
+            title="X Axis Label",
+            showgrid=false
+        ),
+        yaxis=attr(
+            title="Y Axis Label",
+            showgrid=true,
+            range=[0, 20]
+        )
+    )
+  
+    GenieFramework.@out plotdata = [trace1, trace2] # this should always be an array, even if there's only one trace
+    GenieFramework.@out plotlayout = layout
 
 end
