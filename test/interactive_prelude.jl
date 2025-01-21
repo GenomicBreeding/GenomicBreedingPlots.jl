@@ -6,4 +6,3 @@ using GBCore
 using StatsBase, Distributions, LinearAlgebra
 using DataFrames
 using Plots, StatsPlots, Distances, Clustering, Measures
-using PlotlyJS, PlotlyBase, Genie, GenieFramework
