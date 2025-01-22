@@ -78,7 +78,9 @@ function plotstatic(type::Type{T}, phenomes::Phenomes)::T where {T<:ViolinPlots}
     # Across all populations
     i += 1
     df_reshaped = DataFrames.stack(df, propertynames(df)[(end-(length(phenomes.traits)-1)):end])
-    idx = findall(.!ismissing.(df_reshaped[!, :value]) .&& .!isnan.(df_reshaped[!, :value])  .&& .!isinf.(df_reshaped[!, :value]))
+    idx = findall(
+        .!ismissing.(df_reshaped[!, :value]) .&& .!isnan.(df_reshaped[!, :value]) .&& .!isinf.(df_reshaped[!, :value]),
+    )
     lengths = combine(groupby(df_reshaped[idx, :], :variable), :value => length)
     for x in eachrow(lengths)
         # x = eachrow(lengths)[1]
@@ -103,7 +105,7 @@ function plotstatic(type::Type{T}, phenomes::Phenomes)::T where {T<:ViolinPlots}
         i += 1
         println(i)
         df.pop = deepcopy(df.populations)
-        idx = findall(.!ismissing.(df[!, trait]) .&& .!isnan.(df[!, trait])  .&& .!isinf.(df[!, trait]))
+        idx = findall(.!ismissing.(df[!, trait]) .&& .!isnan.(df[!, trait]) .&& .!isinf.(df[!, trait]))
         lengths = combine(groupby(df[idx, :], :populations), trait => length)
         for x in eachrow(lengths)
             # x = eachrow(lengths)[1]
@@ -303,149 +305,242 @@ end
 
 
 
-using MultivariateStats
-using GLMakie, ColorSchemes
-GLMakie.activate!()
-GLMakie.closeall() # close any open screen
 
-function plotinteractive(phenomes::Phenomes)
-    phenomes = Phenomes(n=100, t=3); phenomes.entries = string.("entry_", 1:100); phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace=true); phenomes.traits = ["trait_1", "trait_2", "long_trait_name number 3"]; phenomes.phenotypes = rand(Distributions.MvNormal([1,2,3], LinearAlgebra.I), 100)'; phenomes.phenotypes[1, 1] = missing;
-    
-    
-    # Testing creating an interactive scatter plot
-    
+"""
+
+    plotinteractive2d(
+        phenomes::Phenomes; 
+        idx_entries::Union{Nothing, Vector{Int64}} = nothing,
+        idx_traits::Union{Nothing, Vector{Int64}} = nothing,
+        ditch_some_entries_to_keep_all_traits::Bool = true,
+    )::Figure
+
+Interactive biplot with histogram and correlation heatmap
+
+# Examples
+```julia
+phenomes = Phenomes(n = 100, t = 3)
+phenomes.entries = string.("entry_", 1:100)
+phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace = true)
+phenomes.traits = ["trait_1", "trait_2", "long_trait_name number 3"]
+phenomes.phenotypes = rand(Distributions.MvNormal([1, 2, 3], LinearAlgebra.I), 100)'
+phenomes.phenotypes[1, 1] = missing
+f = plotinteractive2d(phenomes)
+```
+"""
+function plotinteractive2d(
+    phenomes::Phenomes;
+    idx_entries::Union{Nothing,Vector{Int64}} = nothing,
+    idx_traits::Union{Nothing,Vector{Int64}} = nothing,
+    ditch_some_entries_to_keep_all_traits::Bool = true,
+)::Figure
+    # phenomes = Phenomes(n = 100, t = 3)
+    # phenomes.entries = string.("entry_", 1:100)
+    # phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace = true)
+    # phenomes.traits = ["trait_1", "trait_2", "long_trait_name number 3"]
+    # phenomes.phenotypes = rand(Distributions.MvNormal([1, 2, 3], LinearAlgebra.I), 100)'
+    # phenomes.phenotypes[1, 1] = missing
+    # idx_entries = nothing; idx_traits = nothing; ditch_some_entries_to_keep_all_traits = true
+    # Check arguments
+    if !checkdims(phenomes)
+        throw(ArgumentError("The phenomes struct is corrupted."))
+    end
+    if isnothing(idx_entries)
+        idx_entries = collect(1:length(phenomes.entries))
+    else
+        if (minimum(idx_entries) < 1) .|| maximum(idx_entries) > length(phenomes.entries)
+            throw(
+                ArgumentError(
+                    "The indexes of the entries, `idx_entries` are out of bounds. Expected range: from 1 to " *
+                    string(length(phenomes.entries)) *
+                    " while the supplied range is from " *
+                    string(minimum(idx_entries)) *
+                    " to " *
+                    string(maximum(idx_entries)) *
+                    ".",
+                ),
+            )
+        end
+    end
+    if isnothing(idx_traits)
+        idx_traits = collect(1:length(phenomes.traits))
+    else
+        if (minimum(idx_traits) < 1) .|| maximum(idx_traits) > length(phenomes.traits)
+            throw(
+                ArgumentError(
+                    "The indexes of the traits, `idx_traits` are out of bounds. Expected range: from 1 to " *
+                    string(length(phenomes.traits)) *
+                    " while the supplied range is from " *
+                    string(minimum(idx_traits)) *
+                    " to " *
+                    string(maximum(idx_traits)) *
+                    ".",
+                ),
+            )
+        end
+    end
+    # Extract phenotypes and tabularise
+    phenomes = slice(phenomes, idx_entries = idx_entries, idx_traits = idx_traits)
     df = tabularise(phenomes)
     traits = sort(unique(phenomes.traits))
     populations = sort(unique(phenomes.populations))
-    
-    # PCA
-    k = length(populations)
+    # Remove entries with at least 1 missing/NaN/Inf trait or remove trait/s with missing/NaN/Inf to keep all traits
+    idx_rows, idx_cols = if ditch_some_entries_to_keep_all_traits
+        idx_rows = findall(
+            mean(Matrix(.!ismissing.(df[:, 4:end]) .&& .!isnan.(df[:, 4:end]) .&& .!isinf.(df[:, 4:end])), dims = 2)[
+                :,
+                1,
+            ] .== 1,
+        )
+        idx_cols = collect(1:size(df, 2))
+        if length(idx_rows) == 0
+            throw(
+                ArgumentError(
+                    "All entries have at least 1 missing trait value. Please consider setting `ditch_some_entries_to_keep_all_traits` to false or imputing missing phenotypes.",
+                ),
+            )
+        end
+        idx_rows, idx_cols
+    else
+        idx_rows = collect(1:size(df, 1))
+        idx_cols = findall(
+            mean(Matrix(.!ismissing.(df[:, 4:end]) .&& .!isnan.(df[:, 4:end]) .&& .!isinf.(df[:, 4:end])), dims = 1)[
+                1,
+                :,
+            ] .== 1,
+        )
+        if length(idx_cols) == 0
+            throw(
+                ArgumentError(
+                    "All traits have at least 1 entry with missing data. Please consider setting `ditch_some_entries_to_keep_all_traits` to true or imputing missing phenotypes.",
+                ),
+            )
+        end
+        idx_rows, idx_cols
+    end
+    df = df[idx_rows, idx_cols]
+    # Extract the first 2 principal components
+    traits = names(df)[4:end]
     t = length(traits)
     if t <= 2
         throw(ArgumentError("No need to do PCA as you only have at most 2 traits."))
     end
-    names(df)
-    idx = findall(mean(Matrix(.!ismissing.(df)), dims=2)[:,1] .== 1)
-    A::Matrix{Float64} = Matrix(df[idx, 4:end])
-    A = (A .- mean(A, dims=1)) ./ std(A, dims=1)
-    M = fit(PCA, A; maxoutdim=(t-1))
-    vec_missing::Vector{Union{Missing, Float64}} = repeat([missing], size(df,1))
+    A::Matrix{Float64} = Matrix(df[:, 4:end])
+    A = (A .- mean(A, dims = 1)) ./ std(A, dims = 1)
+    # Remove traits with no variation
+    v = var(A, dims = 1)[1, :]
+    idx_cols = findall((abs.(v .- 1) .< 0.00001) .&& .!isnan.(v) .&& .!ismissing.(v) .&& .!isinf.(v))
+    A = A[:, idx_cols]
+    M = fit(PCA, A; maxoutdim = 2)
+    vec_missing::Vector{Union{Missing,Float64}} = repeat([missing], size(df, 1))
     df.pc1 = deepcopy(vec_missing)
     df.pc2 = deepcopy(vec_missing)
-    df[idx, "pc1"] = M.proj[:, 1]
-    df[idx, "pc2"] = M.proj[:, 2]
-
-
-    # Defaults or initial values
-    df = df[idx, :]
+    df[!, :pc1] = M.proj[:, 1]
+    df[!, :pc2] = M.proj[:, 2]
+    # Include the 2 PCs in the list of traits
     traits = names(df)[4:end]
+    # Activate Makie using the OpenGL plotting backend
+    GLMakie.activate!()
+    GLMakie.closeall() # close any open screen
+    # Set plot size
     height, width = 1_200, 800
-    
-    ggplot_theme = Theme(
-            fontsize = 12,
-            backgroundcolor = :gray90,
-            leftspinevisible = false,
-            rightspinevisible = false,
-            bottomspinevisible = false,
-            topspinevisible = false,
-            xgridcolor = :white,
-            ygridcolor = :white,
+    # Instantiate Pearson's correlation value per pair of traits
+    # width_sidebar = 2 * maximum(length.(traits))
+    # ρ = Observable(rpad(round(cor(df[!, traits[1]], df[!, traits[2]]), digits = 4), width_sidebar, " "))
+    ρ = Observable(string(round(cor(df[!, traits[1]], df[!, traits[2]]), digits = 4)))
+    # with_theme(ggplot_theme) do
+    # Define the entire plot/figure
+    fig = Figure(size = (height, width))
+    # Set the trait 1 selector
+    menu_trait_x = Menu(fig, options = traits, default = traits[1])
+    # Set the trait 2 selector
+    menu_trait_y = Menu(fig, options = traits, default = traits[2])
+    # Place these trait menus in a left sidebar
+    fig[1, 1] = vgrid!(
+        Label(fig, "x-axis trait", width = nothing),
+        menu_trait_x,
+        Label(fig, "y-axis trait", width = nothing),
+        menu_trait_y,
+        Label(fig, @lift("ρ = $($ρ)"));
+        tellheight = false,
+        # width = width_sidebar,
+    )
+    # Place the main scatter plot with histograms for the 2 traits
+    fig_main = fig[1:2, 2] = GridLayout()
+    plot_hist_x = Axis(fig_main[1, 1])
+    plot_scatter = Axis(fig_main[2, 1], xlabel = traits[1], ylabel = traits[2])
+    plot_hist_y = Axis(fig_main[2, 2])
+
+    plot_heatmap = Axis(
+        fig[2, 1],
+        title = "Trait correlations",
+        xticks = (1:length(traits), traits),
+        yticks = (1:length(traits), reverse(traits)),
+        xaxisposition = :top,
+        xticklabelrotation = deg2rad(90),
+    )
+
+    C = cor(Matrix(df[!, traits]))
+    C = C[:, reverse(collect(1:end))]
+    GLMakie.heatmap!(
+        plot_heatmap,
+        1:length(traits),
+        1:length(traits),
+        C,
+        colorrange = (-1, 1),
+        inspector_label = (self, (i, j), p) ->
+            string("ρ = ", round(C[i, j], digits = 4), "\n", traits[i], "\n", reverse(traits)[j]),
     )
 
 
-    ρ = Observable(rpad(round(cor(df[!, traits[1]], df[!, traits[2]]), digits=4), 2*maximum(length.(traits)), " "))
-    with_theme(ggplot_theme) do
-        fig = Figure(size = (height, width))
+    X = Observable{Any}(df[!, traits[1]])
+    Y = Observable{Any}(df[!, traits[2]])
 
-        menu_trait_x = Menu(fig, options=traits, default=traits[1])
-        menu_trait_y = Menu(fig, options=traits, default=traits[2])
-        fig[1, 1] = vgrid!(
-            Label(fig, "x-axis trait", width = nothing),
-            menu_trait_x,
-            Label(fig, "y-axis trait", width = nothing),
-            menu_trait_y,
-            Label(fig, @lift("ρ = $($ρ)"));
-            tellheight = false, width = 200
+    for pop in populations
+        idx = findall(df.populations .== pop)
+
+        x = @lift($X[idx])
+        y = @lift($Y[idx])
+
+        GLMakie.hist!(plot_hist_x, x)
+        GLMakie.hist!(plot_hist_y, y, direction = :x)
+        GLMakie.scatter!(
+            plot_scatter,
+            x,
+            y,
+            label = pop,
+            inspector_label = (self, i, p) -> string(df.entries[idx][i], "\n(", df.populations[idx][i], ")"),
         )
-        fig_main = fig[1:2,2] = GridLayout()
-        plot_hist_x = Axis(fig_main[1, 1])
-        plot_scatter = Axis(fig_main[2, 1], xlabel = traits[1], ylabel = traits[2])
-        plot_hist_y = Axis(fig_main[2, 2])
+    end
+    connect!(ρ, @lift(rpad(round(cor($X, $Y), digits = 4), 2 * maximum(length.(traits)), " ")))
 
-        plot_heatmap = Axis(fig[2,1], title="Trait correlations", xticks=(1:length(traits), traits), yticks=(1:length(traits), reverse(traits)), xaxisposition=:top, xticklabelrotation=deg2rad(90), )
+    leg = Legend(fig_main[1, 2], plot_scatter)
+    GLMakie.hidedecorations!(plot_hist_x, grid = false)
+    GLMakie.hidedecorations!(plot_hist_y, grid = false)
+    leg.tellheight = true
 
-        C = cor(Matrix(df[!, traits]))
-        C = C[:, reverse(collect(1:end))]
-        GLMakie.heatmap!(
-            plot_heatmap,
-            1:length(traits),
-            1:length(traits),
-            C,
-            inspector_label = (self, (i, j), p) -> string("ρ = ", round(C[i, j], digits=4), "\n", traits[i], "\n", reverse(traits)[j])
-        )
-
-
-
-        X = Observable{Any}(df[!, traits[1]])
-        Y = Observable{Any}(df[!, traits[2]])
-        
-        for pop in populations
-            idx = findall(df.populations .== pop)
-            # x = lift(trait_x) do name
-            #     df[idx, name]
-            # end
-    
-            # y = lift(trait_y) do name
-            #     df[idx, name]
-            # end
-
-            # ρ = lift(trait_x) do name
-            #     df[idx, name]
-            # end
-            x = @lift($X[idx])
-            y = @lift($Y[idx])
-            
-            GLMakie.hist!(plot_hist_x, x)
-            GLMakie.hist!(plot_hist_y, y, direction = :x)
-            GLMakie.scatter!(
-                plot_scatter,
-                x,
-                y,
-                label = pop,
-                inspector_label = (self, i, p) -> string(df.entries[idx][i], "\n(", df.populations[idx][i], ")")
-            )
-        end
-        connect!(ρ, @lift(rpad(round(cor($X, $Y), digits=4), 2*maximum(length.(traits)), " ")))
-        
-        leg = Legend(fig_main[1, 2], plot_scatter)
-        GLMakie.hidedecorations!(plot_hist_x, grid = false)
-        GLMakie.hidedecorations!(plot_hist_y, grid = false)
-        leg.tellheight = true
-        
-        on(menu_trait_x.selection) do s
-            # trait_x[] = s
-            X[] = df[!, s]
-            plot_scatter.xlabel = s
-            autolimits!(plot_scatter)
-            autolimits!(plot_hist_x)
-            autolimits!(plot_hist_y)
-        end
-
-        on(menu_trait_y.selection) do s
-            # trait_y[] = s
-            Y[] = df[!, s]
-            plot_scatter.ylabel = s
-            autolimits!(plot_scatter)
-            autolimits!(plot_hist_x)
-            autolimits!(plot_hist_y)
-        end
-
-        DataInspector(fig)
-        fig
-
+    on(menu_trait_x.selection) do s
+        # trait_x[] = s
+        X[] = df[!, s]
+        plot_scatter.xlabel = s
+        autolimits!(plot_scatter)
+        autolimits!(plot_hist_x)
+        autolimits!(plot_hist_y)
     end
 
+    on(menu_trait_y.selection) do s
+        # trait_y[] = s
+        Y[] = df[!, s]
+        plot_scatter.ylabel = s
+        autolimits!(plot_scatter)
+        autolimits!(plot_hist_x)
+        autolimits!(plot_hist_y)
+    end
 
+    DataInspector(fig)
+    fig
 
-    
+    # end
+    # Output
+    # nothing
 end
