@@ -334,13 +334,13 @@ function plotinteractive2d(
     idx_traits::Union{Nothing,Vector{Int64}} = nothing,
     ditch_some_entries_to_keep_all_traits::Bool = true,
 )::Figure
-    # phenomes = Phenomes(n = 100, t = 3)
-    # phenomes.entries = string.("entry_", 1:100)
-    # phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace = true)
-    # phenomes.traits = ["trait_1", "trait_2", "long_trait_name number 3"]
-    # phenomes.phenotypes = rand(Distributions.MvNormal([1, 2, 3], LinearAlgebra.I), 100)'
-    # phenomes.phenotypes[1, 1] = missing
-    # idx_entries = nothing; idx_traits = nothing; ditch_some_entries_to_keep_all_traits = true
+    phenomes = Phenomes(n = 100, t = 3)
+    phenomes.entries = string.("entry_", 1:100)
+    phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace = true)
+    phenomes.traits = ["trait_1", "trait_2", "long_trait_name number 3"]
+    phenomes.phenotypes = rand(Distributions.MvNormal([1, 2, 3], LinearAlgebra.I), 100)'
+    phenomes.phenotypes[1, 1] = missing
+    idx_entries = nothing; idx_traits = nothing; ditch_some_entries_to_keep_all_traits = true
     # Check arguments
     if !checkdims(phenomes)
         throw(ArgumentError("The phenomes struct is corrupted."))
@@ -444,103 +444,138 @@ function plotinteractive2d(
     GLMakie.closeall() # close any open screen
     # Set plot size
     height, width = 1_200, 800
-    # Instantiate Pearson's correlation value per pair of traits
-    # width_sidebar = 2 * maximum(length.(traits))
-    # ρ = Observable(rpad(round(cor(df[!, traits[1]], df[!, traits[2]]), digits = 4), width_sidebar, " "))
-    ρ = Observable(string(round(cor(df[!, traits[1]], df[!, traits[2]]), digits = 4)))
     # with_theme(ggplot_theme) do
     # Define the entire plot/figure
-    fig = Figure(size = (height, width))
-    # Set the trait 1 selector
-    menu_trait_x = Menu(fig, options = traits, default = traits[1])
-    # Set the trait 2 selector
-    menu_trait_y = Menu(fig, options = traits, default = traits[2])
-    # Place these trait menus in a left sidebar
-    fig[1, 1] = vgrid!(
-        Label(fig, "x-axis trait", width = nothing),
-        menu_trait_x,
-        Label(fig, "y-axis trait", width = nothing),
-        menu_trait_y,
-        Label(fig, @lift("ρ = $($ρ)"));
-        tellheight = false,
-        # width = width_sidebar,
-    )
-    # Place the main scatter plot with histograms for the 2 traits
-    fig_main = fig[1:2, 2] = GridLayout()
-    plot_hist_x = Axis(fig_main[1, 1])
-    plot_scatter = Axis(fig_main[2, 1], xlabel = traits[1], ylabel = traits[2])
-    plot_hist_y = Axis(fig_main[2, 2])
+    fig = begin
+        fig = Figure(size = (height, width))
+        # Set the trait 1 selector
+        menu_trait_x = Menu(fig, options = traits, default = traits[1])
+        # Set the trait 2 selector
+        menu_trait_y = Menu(fig, options = traits, default = traits[2])
+        # Instantiate Pearson's correlation value per pair of traits
+        # width_sidebar = 2 * maximum(length.(traits))
+        # ρ = Observable(rpad(round(cor(df[!, traits[1]], df[!, traits[2]]), digits = 4), width_sidebar, " "))
+        ρ = Observable(string(round(cor(df[!, traits[1]], df[!, traits[2]]), digits = 4)))
 
-    plot_heatmap = Axis(
-        fig[2, 1],
-        title = "Trait correlations",
-        xticks = (1:length(traits), traits),
-        yticks = (1:length(traits), reverse(traits)),
-        xaxisposition = :top,
-        xticklabelrotation = deg2rad(90),
-    )
+        
+        
+        
+        
+        
+        
+        # Search thingy test
+        tb = Textbox(fig, placeholder = "Search trait 1")
 
-    C = cor(Matrix(df[!, traits]))
-    C = C[:, reverse(collect(1:end))]
-    GLMakie.heatmap!(
-        plot_heatmap,
-        1:length(traits),
-        1:length(traits),
-        C,
-        colorrange = (-1, 1),
-        inspector_label = (self, (i, j), p) ->
-            string("ρ = ", round(C[i, j], digits = 4), "\n", traits[i], "\n", reverse(traits)[j]),
-    )
-
-
-    X = Observable{Any}(df[!, traits[1]])
-    Y = Observable{Any}(df[!, traits[2]])
-
-    for pop in populations
-        idx = findall(df.populations .== pop)
-
-        x = @lift($X[idx])
-        y = @lift($Y[idx])
-
-        GLMakie.hist!(plot_hist_x, x)
-        GLMakie.hist!(plot_hist_y, y, direction = :x)
-        GLMakie.scatter!(
-            plot_scatter,
-            x,
-            y,
-            label = pop,
-            inspector_label = (self, i, p) -> string(df.entries[idx][i], "\n(", df.populations[idx][i], ")"),
+        # Place these trait menus in a left sidebar
+        fig[1, 1] = vgrid!(
+            Label(fig, "Search trait 1", width = nothing),
+            tb,
+            Label(fig, "", width = nothing),
+            menu_trait_x,
+            Label(fig, "y-axis trait", width = nothing),
+            menu_trait_y,
+            
+            
+            
+            Label(fig, @lift("ρ = $($ρ)"));
+            tellheight = false,
+            # width = width_sidebar,
         )
+
+        on(tb.stored_string) do s
+            bool_matches = .!isnothing.(match.(Regex(s), traits))
+            if sum(bool_matches) > 0
+                idx = findall(bool_matches)[1]
+                menu_trait_x.selection[] = traits[idx]
+                menu_trait_x.i_selected[] = idx
+                menu_trait_x.is_open[] = true
+            end
+        end
+
+
+
+
+
+
+
+
+
+        # Place the main scatter plot with histograms for the 2 traits
+        fig_main = fig[1:2, 2] = GridLayout()
+        plot_hist_x = Axis(fig_main[1, 1])
+        plot_scatter = Axis(fig_main[2, 1], xlabel = traits[1], ylabel = traits[2])
+        plot_hist_y = Axis(fig_main[2, 2])
+
+        plot_heatmap = Axis(
+            fig[2, 1],
+            title = "Trait correlations",
+            xticks = (1:length(traits), traits),
+            yticks = (1:length(traits), reverse(traits)),
+            xaxisposition = :top,
+            xticklabelrotation = deg2rad(90),
+        )
+
+        C = cor(Matrix(df[!, traits]))
+        C = C[:, reverse(collect(1:end))]
+        GLMakie.heatmap!(
+            plot_heatmap,
+            1:length(traits),
+            1:length(traits),
+            C,
+            colorrange = (-1, 1),
+            inspector_label = (self, (i, j), p) ->
+                string("ρ = ", round(C[i, j], digits = 4), "\n", traits[i], "\n", reverse(traits)[j]),
+        )
+
+
+        X = Observable{Any}(df[!, traits[1]])
+        Y = Observable{Any}(df[!, traits[2]])
+
+        for pop in populations
+            idx = findall(df.populations .== pop)
+
+            x = @lift($X[idx])
+            y = @lift($Y[idx])
+
+            GLMakie.hist!(plot_hist_x, x)
+            GLMakie.hist!(plot_hist_y, y, direction = :x)
+            GLMakie.scatter!(
+                plot_scatter,
+                x,
+                y,
+                label = pop,
+                inspector_label = (self, i, p) -> string(df.entries[idx][i], "\n(", df.populations[idx][i], ")"),
+            )
+        end
+        connect!(ρ, @lift(rpad(round(cor($X, $Y), digits = 4), 2 * maximum(length.(traits)), " ")))
+
+        leg = Legend(fig_main[1, 2], plot_scatter)
+        GLMakie.hidedecorations!(plot_hist_x, grid = false)
+        GLMakie.hidedecorations!(plot_hist_y, grid = false)
+        leg.tellheight = true
+
+        on(menu_trait_x.selection) do s
+            # trait_x[] = s
+            X[] = df[!, s]
+            plot_scatter.xlabel = s
+            autolimits!(plot_scatter)
+            autolimits!(plot_hist_x)
+            autolimits!(plot_hist_y)
+        end
+
+        on(menu_trait_y.selection) do s
+            # trait_y[] = s
+            Y[] = df[!, s]
+            plot_scatter.ylabel = s
+            autolimits!(plot_scatter)
+            autolimits!(plot_hist_x)
+            autolimits!(plot_hist_y)
+        end
+
+        DataInspector(fig)
+        fig
     end
-    connect!(ρ, @lift(rpad(round(cor($X, $Y), digits = 4), 2 * maximum(length.(traits)), " ")))
 
-    leg = Legend(fig_main[1, 2], plot_scatter)
-    GLMakie.hidedecorations!(plot_hist_x, grid = false)
-    GLMakie.hidedecorations!(plot_hist_y, grid = false)
-    leg.tellheight = true
-
-    on(menu_trait_x.selection) do s
-        # trait_x[] = s
-        X[] = df[!, s]
-        plot_scatter.xlabel = s
-        autolimits!(plot_scatter)
-        autolimits!(plot_hist_x)
-        autolimits!(plot_hist_y)
-    end
-
-    on(menu_trait_y.selection) do s
-        # trait_y[] = s
-        Y[] = df[!, s]
-        plot_scatter.ylabel = s
-        autolimits!(plot_scatter)
-        autolimits!(plot_hist_x)
-        autolimits!(plot_hist_y)
-    end
-
-    DataInspector(fig)
-    fig
-
-    # end
     # Output
-    # nothing
+    fig
 end
