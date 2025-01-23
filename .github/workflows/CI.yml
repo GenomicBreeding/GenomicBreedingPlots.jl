@@ -69,12 +69,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >
-            using Pkg
-            Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.instantiate()
             cd docs;
             DISPLAY=:0 xvfb-run -s '-screen 0 1024x768x24'
-            julia --color=yes make.jl
+            julia --color=yes makedocs_for_ci.jl
       # - name: Run doctests
       #   shell: DISPLAY=:0 xvfb-run -s '-screen 0 1024x768x24' julia --project=docs --color=yes {0}
       #   run: |
