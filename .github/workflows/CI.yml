@@ -53,12 +53,12 @@ jobs:
         with:
           version: '1'
       - uses: julia-actions/cache@v2
-      - name: Configure doc environment
-        shell: julia --project=docs --color=yes {0}
-        run: |
-          using Pkg
-          Pkg.develop(PackageSpec(path=pwd()))
-          Pkg.instantiate()
+      # - name: Configure doc environment
+      #   shell: julia --project=docs --color=yes {0}
+      #   run: |
+      #     using Pkg
+      #     Pkg.develop(PackageSpec(path=pwd()))
+      #     Pkg.instantiate()
       # - uses: julia-actions/julia-buildpkg@v1
       # - run: DISPLAY=:0 xvfb-run -s '-screen 0 1024x768x24' julia --project -e 'using Pkg; Pkg.instantiate()'
       # - uses: julia-actions/julia-docdeploy@v1
@@ -69,6 +69,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >
+            using Pkg
+            Pkg.develop(PackageSpec(path=pwd()))
+            Pkg.instantiate()
             cd docs;
             DISPLAY=:0 xvfb-run -s '-screen 0 1024x768x24'
             julia --color=yes make.jl
