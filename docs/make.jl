@@ -1,3 +1,6 @@
+using Pkg
+# Pkg.develop(PackageSpec(path=pwd()))
+Pkg.instantiate()
 using GBPlots
 using Documenter
 
