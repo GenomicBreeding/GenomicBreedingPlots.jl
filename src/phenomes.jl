@@ -334,13 +334,13 @@ function plotinteractive2d(
     idx_traits::Union{Nothing,Vector{Int64}} = nothing,
     ditch_some_entries_to_keep_all_traits::Bool = true,
 )::Figure
-    phenomes = Phenomes(n = 100, t = 3)
-    phenomes.entries = string.("entry_", 1:100)
-    phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace = true)
-    phenomes.traits = ["trait_1", "trait_2", "long_trait_name number 3"]
-    phenomes.phenotypes = rand(Distributions.MvNormal([1, 2, 3], LinearAlgebra.I), 100)'
-    phenomes.phenotypes[1, 1] = missing
-    idx_entries = nothing; idx_traits = nothing; ditch_some_entries_to_keep_all_traits = true
+    # phenomes = Phenomes(n = 100, t = 3)
+    # phenomes.entries = string.("entry_", 1:100)
+    # phenomes.populations = StatsBase.sample(string.("pop_", 1:5), 100, replace = true)
+    # phenomes.traits = ["trait_1", "trait_2", "long_trait_name number 3"]
+    # phenomes.phenotypes = rand(Distributions.MvNormal([1, 2, 3], LinearAlgebra.I), 100)'
+    # phenomes.phenotypes[1, 1] = missing
+    # idx_entries = nothing; idx_traits = nothing; ditch_some_entries_to_keep_all_traits = true
     # Check arguments
     if !checkdims(phenomes)
         throw(ArgumentError("The phenomes struct is corrupted."))
@@ -438,7 +438,7 @@ function plotinteractive2d(
     df[!, :pc1] = M.proj[:, 1]
     df[!, :pc2] = M.proj[:, 2]
     # Include the 2 PCs in the list of traits
-    traits = names(df)[4:end]
+    traits = sort(names(df)[4:end])
     # Activate Makie using the OpenGL plotting backend
     GLMakie.activate!()
     GLMakie.closeall() # close any open screen
@@ -450,45 +450,42 @@ function plotinteractive2d(
         fig = Figure(size = (height, width))
         # Set the trait 1 selector
         menu_trait_x = Menu(fig, options = traits, default = traits[1])
+        tb_x = Textbox(fig, placeholder = "Search trait 1")
         # Set the trait 2 selector
         menu_trait_y = Menu(fig, options = traits, default = traits[2])
+        tb_y = Textbox(fig, placeholder = "Search trait 2")
         # Instantiate Pearson's correlation value per pair of traits
-        # width_sidebar = 2 * maximum(length.(traits))
-        # ρ = Observable(rpad(round(cor(df[!, traits[1]], df[!, traits[2]]), digits = 4), width_sidebar, " "))
         ρ = Observable(string(round(cor(df[!, traits[1]], df[!, traits[2]]), digits = 4)))
-
-        
-        
-        
-        
-        
-        
-        # Search thingy test
-        tb = Textbox(fig, placeholder = "Search trait 1")
-
         # Place these trait menus in a left sidebar
         fig[1, 1] = vgrid!(
             Label(fig, "Search trait 1", width = nothing),
-            tb,
+            tb_x,
             Label(fig, "", width = nothing),
             menu_trait_x,
-            Label(fig, "y-axis trait", width = nothing),
+            Label(fig, "Search trait 2", width = nothing),
+            tb_y,
+            Label(fig, "", width = nothing),
             menu_trait_y,
-            
-            
-            
             Label(fig, @lift("ρ = $($ρ)"));
             tellheight = false,
-            # width = width_sidebar,
         )
 
-        on(tb.stored_string) do s
+        on(tb_x.stored_string) do s
             bool_matches = .!isnothing.(match.(Regex(s), traits))
             if sum(bool_matches) > 0
                 idx = findall(bool_matches)[1]
                 menu_trait_x.selection[] = traits[idx]
                 menu_trait_x.i_selected[] = idx
                 menu_trait_x.is_open[] = true
+            end
+        end
+        on(tb_y.stored_string) do s
+            bool_matches = .!isnothing.(match.(Regex(s), traits))
+            if sum(bool_matches) > 0
+                idx = findall(bool_matches)[1]
+                menu_trait_y.selection[] = traits[idx]
+                menu_trait_y.i_selected[] = idx
+                menu_trait_y.is_open[] = true
             end
         end
 

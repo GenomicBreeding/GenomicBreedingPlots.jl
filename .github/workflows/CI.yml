@@ -61,10 +61,10 @@ jobs:
           Pkg.instantiate()
       # - uses: julia-actions/julia-buildpkg@v1
       - run: DISPLAY=:0 xvfb-run -s '-screen 0 1024x768x24' julia --project -e 'using Pkg; Pkg.instantiate()'
-      - uses: julia-actions/julia-docdeploy@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+      # - uses: julia-actions/julia-docdeploy@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
       - name: Run doctests
         shell: DISPLAY=:0 xvfb-run -s '-screen 0 1024x768x24' julia --project=docs --color=yes {0}
         run: |
