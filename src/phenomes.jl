@@ -328,7 +328,7 @@ phenomes.phenotypes[1, 1] = missing
 f = plotinteractive2d(phenomes)
 ```
 """
-function GBPlots.plotinteractive2d(
+function plotinteractive2d(
     phenomes::Phenomes;
     idx_entries::Union{Nothing,Vector{Int64}} = nothing,
     idx_traits::Union{Nothing,Vector{Int64}} = nothing,
@@ -538,10 +538,10 @@ function GBPlots.plotinteractive2d(
             bool_matches = .!isnothing.(match.(Regex(s, "i"), traits)) # case-insensitive with the Regex flag "i"
             if sum(bool_matches) > 0
                 traits_reordered = vcat(traits[bool_matches], traits[.!bool_matches])
-                menu_trait_x.is_open = true
                 menu_trait_x.selection = traits_reordered[1]
                 menu_trait_x.i_selected = 1
                 menu_trait_x.options = traits_reordered
+                menu_trait_x.is_open = true
             else
                 menu_trait_x.options = traits
             end
@@ -550,10 +550,10 @@ function GBPlots.plotinteractive2d(
             bool_matches = .!isnothing.(match.(Regex(s, "i"), traits)) # case-insensitive with the Regex flag "i"
             if sum(bool_matches) > 0
                 traits_reordered = vcat(traits[bool_matches], traits[.!bool_matches])
-                menu_trait_y.is_open = true
                 menu_trait_y.selection = traits_reordered[1]
                 menu_trait_y.i_selected = 1
                 menu_trait_y.options = traits_reordered
+                menu_trait_y.is_open = true
             else
                 menu_trait_y.options = traits
             end
