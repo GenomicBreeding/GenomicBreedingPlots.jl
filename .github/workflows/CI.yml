@@ -66,4 +66,10 @@ jobs:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       #     DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
       - name: Run doctests
-      - run: DISPLAY=:0 xvfb-run -s '-screen 0 1024x768x24' julia --project=docs -e 'using Documenter: DocMeta, doctest; using GBPlots; DocMeta.setdocmeta!(GBPlots, :DocTestSetup, :(using GBPlots); recursive=true); doctest(GBPlots)'
+      - shell: DISPLAY=:0 xvfb-run -s '-screen 0 1024x768x24' julia --project=docs --color=yest {0}
+        run: |
+          using Documenter: DocMeta, doctest
+          using GBPlots
+          DocMeta.setdocmeta!(GBPlots, :DocTestSetup, :(using GBPlots)
+          recursive=true)
+          doctest(GBPlots)
