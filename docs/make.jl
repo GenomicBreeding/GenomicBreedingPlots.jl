@@ -1,6 +1,6 @@
 using Pkg
 # Pkg.develop(PackageSpec(path=pwd()))
-Pkg.instantiate()
+Pkg.activate(".")
 using GBPlots
 using Documenter
 
