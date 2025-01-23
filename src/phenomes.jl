@@ -444,27 +444,34 @@ function plotinteractive2d(
     GLMakie.closeall() # close any open screen
     # Set plot size
     height, width = 1_200, 800
-    # with_theme(ggplot_theme) do
     # Define the entire plot/figure
     fig = begin
         fig = Figure(size = (height, width))
         # Set the trait 1 selector
-        menu_trait_x = Menu(fig, options = traits, default = traits[1])
+        default_trait_x = if length(traits) > 2
+            "pc1"
+        else
+            traits[1]
+        end
+        menu_trait_x = Menu(fig, options = traits, default = default_trait_x)
         tb_x = Textbox(fig, placeholder = "Search trait 1")
         # Set the trait 2 selector
-        menu_trait_y = Menu(fig, options = traits, default = traits[2])
+        default_trait_y = if length(traits) > 2
+            "pc2"
+        else
+            traits[2]
+        end
+        menu_trait_y = Menu(fig, options = traits, default = default_trait_y)
         tb_y = Textbox(fig, placeholder = "Search trait 2")
         # Instantiate Pearson's correlation value per pair of traits
-        ρ = Observable(string(round(cor(df[!, traits[1]], df[!, traits[2]]), digits = 4)))
+        ρ = Observable(string(round(cor(df[!, default_trait_x], df[!, default_trait_y]), digits = 4)))
         # Place these trait menus in a left sidebar
         fig[1, 1] = vgrid!(
             Label(fig, "Search trait 1", width = nothing),
             tb_x,
-            Label(fig, "", width = nothing),
             menu_trait_x,
             Label(fig, "Search trait 2", width = nothing),
             tb_y,
-            Label(fig, "", width = nothing),
             menu_trait_y,
             Label(fig, @lift("ρ = $($ρ)"));
             tellheight = false,
@@ -572,7 +579,6 @@ function plotinteractive2d(
         DataInspector(fig)
         fig
     end
-
     # Output
     fig
 end
