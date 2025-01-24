@@ -1,4 +1,5 @@
 [deps]
+GBCore = "50d95318-1838-4cfa-a614-3543b4bb0509"
 GBPlots = "2d71191b-ccd5-4418-88d2-30d4b74b1774"
 Clustering = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
 ColorSchemes = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
@@ -6,7 +7,6 @@ DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-GBCore = "50d95318-1838-4cfa-a614-3543b4bb0509"
 GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
