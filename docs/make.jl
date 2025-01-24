@@ -1,7 +1,7 @@
 using Pkg
 Pkg.add(url="https://github.com/GenomicBreeding/GBCore.jl")
 Pkg.add(url="https://github.com/GenomicBreeding/GBPlots.jl")
-Pkg.add(Documenter)
+Pkg.add("Documenter")
 using GBPlots
 using Documenter
 
