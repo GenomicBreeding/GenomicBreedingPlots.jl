@@ -1,7 +1,5 @@
 using Pkg
-# Pkg.develop(PackageSpec(path=pwd()))
-cd("..")
-Pkg.activate(".")
+Pkg.add(url="https://github.com/GenomicBreeding/GBPlots.jl")
 using GBPlots
 using Documenter
 
