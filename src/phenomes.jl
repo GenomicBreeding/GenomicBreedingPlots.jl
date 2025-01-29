@@ -396,7 +396,10 @@ function plotinteractive2d(
         if length(idx_rows) == 0
             throw(
                 ArgumentError(
-                    "All entries have at least 1 missing trait value. Please consider setting `ditch_some_entries_to_keep_all_traits` to false or imputing missing phenotypes.",
+                    "All entries have at least 1 missing trait value. Please consider:" * 
+                    "\n\t(1) setting `ditch_some_entries_to_keep_all_traits` to `false`," *
+                    "\n\t(2) slicing the trial to include at least one non-sparse harvest, or" *
+                    "\n\t(3) imputing missing phenotypes.",
                 ),
             )
         end
@@ -412,7 +415,10 @@ function plotinteractive2d(
         if length(idx_cols) == 0
             throw(
                 ArgumentError(
-                    "All traits have at least 1 entry with missing data. Please consider setting `ditch_some_entries_to_keep_all_traits` to true or imputing missing phenotypes.",
+                    "All traits have at least 1 entry with missing data. Please consider:" * 
+                    "\n\t(1) setting `ditch_some_entries_to_keep_all_traits` to `true`," *
+                    "\n\t(2) slicing the trial to include at least one non-sparse harvest, or" *
+                    "\n\t(3) imputing missing phenotypes.",
                 ),
             )
         end
@@ -520,7 +526,7 @@ function plotinteractive2d(
                 plot_scatter,
                 x,
                 y,
-                label = pop,
+                label = string(pop, " (n=", length(idx), ")"),
                 inspector_label = (self, i, p) -> string(df.entries[idx][i], "\n(", df.populations[idx][i], ")"),
             )
         end
