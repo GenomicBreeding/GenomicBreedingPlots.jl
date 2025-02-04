@@ -2,22 +2,22 @@ abstract type PlotsGB end
 
 mutable struct DistributionPlots <: PlotsGB
     labels::Vector{String}
-    plots::Vector{Plots.Plot}
+    plots::Vector{CairoMakie.Figure}
 end
 
 mutable struct ViolinPlots <: PlotsGB
     labels::Vector{String}
-    plots::Vector{Plots.Plot}
+    plots::Vector{CairoMakie.Figure}
 end
 
 mutable struct CorHeatPlots <: PlotsGB
     labels::Vector{String}
-    plots::Vector{Plots.Plot}
+    plots::Vector{CairoMakie.Figure}
 end
 
 mutable struct TreePlots <: PlotsGB
     labels::Vector{String}
-    plots::Vector{Plots.Plot}
+    plots::Vector{CairoMakie.Figure}
 end
 
 function GBCore.checkdims(x::PlotsGB)::Bool
@@ -51,7 +51,7 @@ function saveplots(
     use_labels::Bool = true,
 )::Vector{String}
     # phenomes = Phenomes(n=10, t=3); phenomes.entries = string.("entry_", 1:10); phenomes.populations .= "pop_1"; phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(10,3);
-    # plots = plotstatic(DistributionPlots, phenomes); idx = [1, 3, 5]; format = "svg"; prefix = ""; use_labels = false;
+    # plots = GBPlots.plot(DistributionPlots, phenomes); idx = [1, 3, 5]; format = "svg"; prefix = ""; use_labels = false;
     # Check arguments
     if !checkdims(plots)
         throw(ArgumentError("The plots::DistributionPlots is corrupted."))
@@ -80,7 +80,7 @@ function saveplots(
         if isfile(fnames[i])
             throw(ErrorException("Cannot overwrite exisiting file: `" * fnames[i] * "`."))
         end
-        Plots.savefig(plots.plots[j], fnames[i])
+        CairoMakie.save(fnames[i], plots.plots[j])
     end
     fnames
 end

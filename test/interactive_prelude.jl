@@ -7,7 +7,5 @@ catch
 end
 using GBPlots
 using GBCore
-using StatsBase, MultivariateStats, Distributions, LinearAlgebra
-using DataFrames
-using Plots, StatsPlots, Distances, Clustering, Measures
-using GLMakie, ColorSchemes
+using StatsBase, MultivariateStats, Distributions, LinearAlgebra, DataFrames
+using CairoMakie, ColorSchemes

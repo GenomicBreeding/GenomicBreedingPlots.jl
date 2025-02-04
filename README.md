@@ -4,7 +4,7 @@
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://GenomicBreeding.github.io/GBPlots.jl/dev/)
 [![Build Status](https://github.com/GenomicBreeding/GBPlots.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/GenomicBreeding/GBPlots.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
-Plotting library for GenomicBreeding.jl
+Non-interactive plotting library for GenomicBreeding.jl
 
 ## Dev stuff:
 

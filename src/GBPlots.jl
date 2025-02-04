@@ -3,9 +3,9 @@ module GBPlots
 using GBCore
 using StatsBase, MultivariateStats, Distributions, LinearAlgebra
 using DataFrames
-using Plots, StatsPlots, Distances, Clustering, Measures
-using GLMakie, ColorSchemes
-using PrecompileTools: @compile_workload
+using Distances, Clustering, Measures
+using CairoMakie, ColorSchemes
+# using PrecompileTools: @compile_workload
 
 include("commons.jl")
 # include("genomes.jl")
@@ -15,10 +15,10 @@ include("phenomes.jl")
 
 export PlotsGB, DistributionPlots, ViolinPlots, CorHeatPlots, TreePlots
 export checkdims, labeltofname, saveplots
-export plotstatic, plotinteractive2d
+export plot
 
-@compile_workload begin
-    true
-end
+# @compile_workload begin
+#     true
+# end
 
 end
