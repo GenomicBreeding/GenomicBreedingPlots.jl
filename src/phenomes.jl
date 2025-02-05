@@ -179,19 +179,19 @@ function plot(
     plot_size::Tuple{Int64,Int64} = (600, 450),
     color_scheme::Symbol = :viridis,
     rev_label_colors::Bool = false,
+    n_threshold_to_show_text::Int64 = 1_000,
 )::T where {T<:CorHeatPlots}
     # type = CorHeatPlots
     # genomes = GBCore.simulategenomes(n=100, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
     # trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
     # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing
-    # plot_size = (700, 500)
-    # color_scheme = :viridis; rev_label_colors = false
+    # plot_size = (700, 500); color_scheme = :viridis; rev_label_colors = false; n_threshold_to_show_text = 1_000
     if !checkdims(phenomes)
         throw(ArgumentError("Phenomes struct is corrupted."))
     end
     traits::Vector{String} = sort(unique(phenomes.traits))
     populations::Vector{String} = sort(unique(phenomes.populations))
-    labels = Vector{String}(undef, 2 + length(populations) + length(traits))
+    labels = Vector{String}(undef, 2 * (1 + length(populations)))
     plots = Vector{CairoMakie.Figure}(undef, length(labels))
     # Instantiate the vectors of correlation matrices, counts per pairwise correlation, labels and grouping names
     correlations = Vector{Matrix{Float64}}(undef, length(labels))
@@ -217,7 +217,7 @@ function plot(
     end
     # Plot heatmaps
     for (i, (C, N, lab, grp)) in enumerate(zip(correlations, counts, labellings, groupings))
-        # i = 5; C=correlations[i]; N=counts[i]; lab=labellings[i]; grp=groupings[i];
+        # i = 1; C=correlations[i]; N=counts[i]; lab=labellings[i]; grp=groupings[i];
         n = size(C, 1)
         font_size_ticks = minimum([20, 15 / (0.1 * n)])
         font_size_labels = minimum([20, 9 / (0.1 * n)])
@@ -230,7 +230,7 @@ function plot(
             [x < 0.5 ? :black : :white for x in reshape(C, n * n, 1)[:, 1]]
         end
         labels[i] = string("Correlations ", grp)
-        fig = CairoMakie.Figure(size = plot_size)
+        fig = CairoMakie.Figure(size = plot_size);
         axs = CairoMakie.Axis(
             fig[1, 1],
             xticks = (1:n, lab),
@@ -244,8 +244,10 @@ function plot(
         )
         CairoMakie.Label(fig[2, 1], labels[i])
         CairoMakie.heatmap!(axs, 1:n, 1:n, C, colorrange = (-1.0, 1.0), colormap = color_scheme)
-        CairoMakie.text!(axs, x, y, text = c, align = (:center, :center), color = col, fontsize = font_size_labels)
-        plots[i] = fig
+        if n^2 < n_threshold_to_show_text
+            CairoMakie.text!(axs, x, y, text = c, align = (:center, :center), color = col, fontsize = font_size_labels)
+        end
+        plots[i] = fig;
     end
     # Output
     out::type = CorHeatPlots(labels, plots)

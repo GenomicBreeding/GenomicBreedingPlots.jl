@@ -20,6 +20,11 @@ mutable struct TreePlots <: PlotsGB
     plots::Vector{CairoMakie.Figure}
 end
 
+mutable struct BarPlots <: PlotsGB
+    labels::Vector{String}
+    plots::Vector{CairoMakie.Figure}
+end
+
 function GBCore.checkdims(x::PlotsGB)::Bool
     length(x.labels) == length(x.plots)
 end
