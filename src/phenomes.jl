@@ -15,7 +15,7 @@ julia> trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1
 
 julia> phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
 
-julia> dplots = plot(DistributionPlots, phenomes);
+julia> dplots = GBPlots.plot(DistributionPlots, phenomes);
 
 julia> fnames = saveplots(dplots)
 
@@ -72,7 +72,7 @@ julia> trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1
 
 julia> phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
 
-julia> vplots = plot(ViolinPlots, phenomes);
+julia> vplots = GBPlots.plot(ViolinPlots, phenomes);
 
 julia> fnames = saveplots(vplots)
 
@@ -166,7 +166,7 @@ julia> trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1
 
 julia> phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
 
-julia> hplots = plot(CorHeatPlots, phenomes);
+julia> hplots = GBPlots.plot(CorHeatPlots, phenomes);
 
 julia> fnames = saveplots(hplots, format="png")
 
@@ -230,7 +230,7 @@ function plot(
             [x < 0.5 ? :black : :white for x in reshape(C, n * n, 1)[:, 1]]
         end
         labels[i] = string("Correlations ", grp)
-        fig = CairoMakie.Figure(size = plot_size);
+        fig = CairoMakie.Figure(size = plot_size)
         axs = CairoMakie.Axis(
             fig[1, 1],
             xticks = (1:n, lab),
@@ -247,7 +247,7 @@ function plot(
         if n^2 < n_threshold_to_show_text
             CairoMakie.text!(axs, x, y, text = c, align = (:center, :center), color = col, fontsize = font_size_labels)
         end
-        plots[i] = fig;
+        plots[i] = fig
     end
     # Output
     out::type = CorHeatPlots(labels, plots)
@@ -278,7 +278,7 @@ julia> trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1
 
 julia> phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
 
-julia> tplots = plot(TreePlots, phenomes);
+julia> tplots = GBPlots.plot(TreePlots, phenomes);
 
 julia> fnames = saveplots(tplots)
 

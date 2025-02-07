@@ -12,8 +12,9 @@ include("commons.jl")
 include("phenomes.jl")
 # include("trials.jl")
 # include("tebv.jl")
+include("cv.jl")
 
-export PlotsGB, DistributionPlots, ViolinPlots, CorHeatPlots, TreePlots
+export PlotsGB, DistributionPlots, ViolinPlots, CorHeatPlots, TreePlots, BarPlots, BoxPlots
 export checkdims, labeltofname, saveplots
 export plot
 

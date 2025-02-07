@@ -35,21 +35,15 @@ function GBCore.checkdims(x::PlotsGB)::Bool
 end
 
 function labeltofname(; label::String, prefix::String, suffix::String)::String
-    label = replace(label, " " => "_")
-    label = replace(label, "\n" => "_")
-    label = replace(label, "\t" => "_")
-    label = replace(label, "(" => "_")
-    label = replace(label, ")" => "_")
-    label = replace(label, ":" => "_")
-    label = replace(label, "=" => "_")
+    symbol_strings::Vector{String} = [" ", "\n", "\t", "(", ")", "&", "|", ":", "=", "+", "-", "*", "/", "%"]
+    for s in symbol_strings
+        label = replace(label, s => "_")
+    end
     fname = join([prefix, label], "-") * "." * suffix
-    fname = replace(fname, ".." => ".")
-    fname = replace(fname, "__" => "_")
-    fname = replace(fname, "--" => "-")
-    fname = replace(fname, "_." => ".")
-    fname = replace(fname, "._" => "_")
-    fname = replace(fname, "-." => ".")
-    fname = replace(fname, ".-" => "-")
+    repeat_strings = ["..", "__", "--", "_.", "._", "-.", ".-"]
+    for s in repeat_strings
+        fname = replace(fname, s => ".")
+    end
     fname
 end
 
