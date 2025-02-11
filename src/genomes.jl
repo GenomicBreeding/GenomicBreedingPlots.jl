@@ -491,7 +491,7 @@ function plot(
         #     colorrange = (1, length(populations)),
         # )
         colourmap = getproperty(ColorSchemes, plt.colormap[])
-        colours = colourmap[range(start = 0.0, stop = 1.0; length = length(populations))]
+        colours = colourmap[range(start = 0.0, stop = 1.0; length = maximum([2, length(populations)]))]
         elems = [
             [MarkerElement(color = col, marker = :circle, markersize = 15, strokecolor = :black)] for col in colours
         ]

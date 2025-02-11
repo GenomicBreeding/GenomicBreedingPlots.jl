@@ -58,6 +58,7 @@ function saveplots(
     format::String = "svg",
     prefix::String = "",
     use_labels::Bool = true,
+    overwrite::Bool = false,
 )::Vector{String}
     # phenomes = Phenomes(n=10, t=3); phenomes.entries = string.("entry_", 1:10); phenomes.populations .= "pop_1"; phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(10,3);
     # plots = GBPlots.plot(DistributionPlots, phenomes); idx = [1, 3, 5]; format = "svg"; prefix = ""; use_labels = false;
@@ -87,7 +88,11 @@ function saveplots(
             fnames[i] = labeltofname(label = string(i), prefix = prefix, suffix = format)
         end
         if isfile(fnames[i])
-            throw(ErrorException("Cannot overwrite exisiting file: `" * fnames[i] * "`."))
+            if overwrite
+                rm(fnames[i])
+            else
+                throw(ErrorException("Cannot overwrite exisiting file: `" * fnames[i] * "`."))
+            end
         end
         CairoMakie.save(fnames[i], plots.plots[j])
     end
