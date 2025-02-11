@@ -284,7 +284,9 @@ function plot(
                         colormap = colour_scheme,
                         bar_labels = collect(1:length(y)),
                         label_formatter = i ->
-                            string(round(y[i], digits = 2), " (±", round(y_std[i], digits = 2), ")"),
+                            !isnan(y_std[i]) ?
+                            string(round(y[i], digits = 2), " (±", round(y_std[i], digits = 2), ")") :
+                            string(round(y[i], digits = 2)),
                         label_size = font_size_labels,
                         label = [label => (; color = i) for (i, label) in enumerate(z_levels)],
                         direction = :x,
