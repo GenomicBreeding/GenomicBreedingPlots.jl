@@ -418,13 +418,20 @@ function plot(
         # cv_type = "Across populations"
         df_metrics, x_names, z_names = if cv_type == "Within population"
             # Within population CV results
-            df_metrics = df_metrics_all[df_metrics_all.training_population.==df_metrics_all.validation_population, :]
+            idx = findall(
+                isnothing.(match.(Regex(";"), df_metrics_all.training_population)) .&&
+                df_metrics_all.training_population .== df_metrics_all.validation_population
+            )
+            df_metrics = df_metrics_all[idx, :]
             x_names = ["model", "trait", "validation_population"]
             z_names = vcat("bulk", x_names)
             (df_metrics, x_names, z_names)
         else
             # Across population CV results
-            df_metrics = df_metrics_all
+            idx = findall(
+                df_metrics_all.training_population .!= df_metrics_all.validation_population
+            )
+            df_metrics = df_metrics_all[idx, :]
             x_names = ["validation_population"]
             z_names = ["model", "trait"]
             (df_metrics, x_names, z_names)
