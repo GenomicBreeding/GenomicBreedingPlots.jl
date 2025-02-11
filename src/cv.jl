@@ -152,13 +152,16 @@ function plot(
                 else
                     # Across populations CV
                     w_name = ("training_population", z_names[z_names.!=z_name][1])
-                    w_levels = zip(
-                        sort(unique(df_metrics[!, Symbol(w_name[1])])),
-                        sort(unique(df_metrics[!, Symbol(w_name[2])])),
-                    )
+                    w_levels = []
+                    for pop in sort(unique(df_metrics[!, Symbol(w_name[1])]))
+                        for trait_or_model in sort(unique(df_metrics[!, Symbol(w_name[2])]))
+                            push!(w_levels, (pop, trait_or_model))
+                        end
+                    end
                     (w_name, w_levels)
                 end
                 for w_level in w_levels
+                    # w_level = w_levels[6]
                     # w_level = ("population_1", "trait_1")
                     # println(string("cv_type = \"", cv_type, "\"; x_name = \"", x_name, "\"; z_name = \"", z_name, "\"; w_level = \"", w_level, "\""))
                     df_metrics_sub = if isnothing(w_level)
@@ -207,7 +210,7 @@ function plot(
                         end
                         (df, z_levels, z, colours)
                     end
-                    # Rename level combinations to fit in th plot area
+                    # Rename level combinations to fit in the plot area
                     x_levels = begin
                         x_levels_renamed = deepcopy(x_levels)
                         for (i, x_level) in enumerate(x_levels)
@@ -277,7 +280,7 @@ function plot(
                         y,
                         dodge = z,
                         color = colours,
-                        colorrange = (1, length(unique(colours))),
+                        colorrange = (1, maximum([2, length(unique(colours))])),
                         colormap = colour_scheme,
                         bar_labels = collect(1:length(y)),
                         label_formatter = i ->
@@ -458,10 +461,12 @@ function plot(
                 else
                     # Across populations CV
                     w_name = ("training_population", z_names[z_names.!=z_name][1])
-                    w_levels = zip(
-                        sort(unique(df_metrics[!, Symbol(w_name[1])])),
-                        sort(unique(df_metrics[!, Symbol(w_name[2])])),
-                    )
+                    w_levels = []
+                    for pop in sort(unique(df_metrics[!, Symbol(w_name[1])]))
+                        for trait_or_model in sort(unique(df_metrics[!, Symbol(w_name[2])]))
+                            push!(w_levels, (pop, trait_or_model))
+                        end
+                    end
                     (w_name, w_levels)
                 end
                 for w_level in w_levels
@@ -568,7 +573,7 @@ function plot(
                             df_metrics_sub.__y__,
                             dodge = df_metrics_sub.__z__,
                             color = df_metrics_sub.__colours__,
-                            colorrange = (1, length(unique(df_metrics_sub.__colours__))),
+                            colorrange = (1, maximum([2, length(unique(df_metrics_sub.__colours__))])),
                             colormap = colour_scheme,
                             label = [label => (; color = i) for (i, label) in enumerate(z_levels)],
                         )

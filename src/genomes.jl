@@ -448,7 +448,7 @@ function plot(
                 pc2,
                 color = colours,
                 colormap = colour_scheme,
-                colorrange = (1, length(populations)),
+                colorrange = (1, maximum([2, length(populations)])),
             )
         else
             labels[1] = string(genomes.loci_alleles[idx_cols[1]], " vs ", genomes.loci_alleles[idx_cols[2]])
@@ -536,7 +536,7 @@ function plot(
                 y,
                 color = colours,
                 colormap = colour_scheme,
-                colorrange = (1, length(populations)),
+                colorrange = (1, maximum([2, length(populations)])),
             )
         end
         # M = fit(PCA, G')
