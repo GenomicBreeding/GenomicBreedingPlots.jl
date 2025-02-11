@@ -8,11 +8,11 @@ Documenter.doctest(GBPlots)
 
 @testset "GBPlots.jl" begin
     # Phenomes
-    genomes = GBCore.simulategenomes(n = 300, verbose = false)
+    genomes = GBCore.simulategenomes(n = 300, l = 1_000, verbose = false)
     genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace = true)
     trials, _ = GBCore.simulatetrials(
         genomes = genomes,
-        n_years = 1,
+        n_years = 2,
         n_seasons = 1,
         n_harvests = 1,
         n_sites = 1,
@@ -21,22 +21,24 @@ Documenter.doctest(GBPlots)
     )
     phenomes = extractphenomes(trials)
     phenomes.phenotypes[1, 1] = missing
-    plots = GBPlots.plot(DistributionPlots, phenomes)
-    fnames = saveplots(plots)
-    @test length(fnames) == length(plots.plots)
-    rm.(fnames)
-    plots = GBPlots.plot(ViolinPlots, phenomes)
-    fnames = saveplots(plots)
-    @test length(fnames) == length(plots.plots)
-    rm.(fnames)
-    plots = GBPlots.plot(CorHeatPlots, phenomes)
-    fnames = saveplots(plots)
-    @test length(fnames) == length(plots.plots)
-    rm.(fnames)
-    plots = GBPlots.plot(TreePlots, phenomes)
-    fnames = saveplots(plots)
-    @test length(fnames) == length(plots.plots)
-    rm.(fnames)
+    plot_types = [DistributionPlots, ViolinPlots, CorHeatPlots, TreePlots, PCBiPlots]
+    # Genomes
+    for plot_type in plot_types
+        # plot_type = PCBiPlots
+        println(string("Genomes: ", plot_type))
+        plots = GBPlots.plot(plot_type, genomes)
+        fnames = saveplots(plots)
+        @test length(fnames) == length(plots.plots)
+        rm.(fnames)
+    end
+    # Phenomes
+    for plot_type in plot_types
+        println(string("Phenomes: ", plot_type))
+        plots = GBPlots.plot(plot_type, phenomes)
+        fnames = saveplots(plots)
+        @test length(fnames) == length(plots.plots)
+        rm.(fnames)
+    end
     # CV
     cvs::Vector{CV} = []
     for m = 1:3
@@ -72,13 +74,11 @@ Documenter.doctest(GBPlots)
             end
         end
     end
-    plots = GBPlots.plot(BarPlots, cvs)
-    fnames = saveplots(plots)
-    @test length(fnames) == length(plots.plots)
-    rm.(fnames)
-    plots = GBPlots.plot(BoxPlots, cvs)
-    fnames = saveplots(plots)
-    @test length(fnames) == length(plots.plots)
-    rm.(fnames)
-
+    for plot_type in [BarPlots, BoxPlots]
+        println(string("Vector{CV}: ", plot_type))
+        plots = GBPlots.plot(plot_type, cvs)
+        fnames = saveplots(plots)
+        @test length(fnames) == length(plots.plots)
+        rm.(fnames)
+    end
 end

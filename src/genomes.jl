@@ -1,21 +1,17 @@
 """
     plot(
         type::Type{T},
-        phenomes::Phenomes;
+        genomes::Genomes;
         plot_size::Tuple{Int64,Int64} = (600, 450),
     )::T where {T<:DistributionPlots}
 
-Plot distributions of each trait across populations
+Plot the distribution of allele frequencies from a subset of loci across populations
 
 # Examples
 ```julia
 julia> genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
-julia> trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
-
-julia> phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
-
-julia> dplots = GBPlots.plot(DistributionPlots, phenomes);
+julia> dplots = GBPlots.plot(DistributionPlots, genomes);
 
 julia> fnames = saveplots(dplots)
 
@@ -24,50 +20,47 @@ julia> rm.(fnames);
 """
 function plot(
     type::Type{T},
-    phenomes::Phenomes;
+    genomes::Genomes;
+    n_loci_alleles::Int64 = 1_000,
+    seed::Int64 = 42,
     plot_size::Tuple{Int64,Int64} = (600, 450),
 )::T where {T<:DistributionPlots}
     # type = DistributionPlots
     # genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
-    # trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
-    # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing
-    if !checkdims(phenomes)
-        throw(ArgumentError("Phenomes struct is corrupted."))
+    # n_loci_alleles = 1_000; seed = 42; plot_size = (600, 450);
+    if !checkdims(genomes)
+        throw(ArgumentError("Genomes struct is corrupted."))
     end
-    traits::Vector{String} = sort(unique(phenomes.traits))
-    labels = Vector{String}(undef, length(traits))
-    plots = Vector{CairoMakie.Figure}(undef, length(labels))
-    df = tabularise(phenomes)
-    # Per trait across populations
-    for (i, trait) in enumerate(traits)
-        # i = 1; trait = traits[i]
-        y = df[:, trait]
-        idx = findall(.!ismissing.(y) .&& .!isnan.(y) .&& .!isinf.(y))
-        fig = if length(idx) > 3
-            y = y[idx]
-            labels[i] = string("Trait: ", trait, " (n=", length(idx), ")")
-            fig = CairoMakie.Figure(size = plot_size)
-            axs = CairoMakie.Axis(fig[1, 1], title = labels[i])
-            CairoMakie.density!(axs, y)
-            fig
+    rng::TaskLocalRNG = Random.seed!(seed)
+    n, p = size(genomes.allele_frequencies)
+    idx_loci_alleles::Vector{Int64} = sort(sample(rng, 1:p, minimum([n_loci_alleles, p]), replace = false))
+    labels = ["Distribution of allele frequencies"]
+    fig = CairoMakie.Figure(size = plot_size)
+    axs = CairoMakie.Axis(fig[1, 1], title = labels[1])
+    q::Vector{Float64} = []
+    for i = 1:n
+        for j in idx_loci_alleles
+            qij = genomes.allele_frequencies[i, j]
+            if !ismissing(qij) && !isnan(qij) && !isinf(qij)
+                append!(q, qij)
+            end
         end
-        plots[i] = fig
     end
+    CairoMakie.density!(axs, q)
     # Output
-    out::type = DistributionPlots(labels, plots)
+    out::type = DistributionPlots(labels, [fig])
     out
 end
-
 
 """
     plot(
         type::Type{T},
-        phenomes::Phenomes;
+        genomes::Genomes;
         plot_size::Tuple{Int64,Int64} = (600, 450),
         colour_scheme::Symbol = :viridis,
     )::T where {T<:ViolinPlots}
 
-Violin plots per trait per population
+Violin plot of allele frequency distribution (for a subset of loci) per population
 
 # Examples
 ```julia
@@ -75,9 +68,9 @@ julia> genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populatio
 
 julia> trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
 
-julia> phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
+julia> genomes = extractgenomes(trials); genomes.phenotypes[1,1] = missing;
 
-julia> vplots = GBPlots.plot(ViolinPlots, phenomes);
+julia> vplots = GBPlots.plot(ViolinPlots, genomes);
 
 julia> fnames = saveplots(vplots)
 
@@ -86,99 +79,94 @@ julia> rm.(fnames);
 """
 function plot(
     type::Type{T},
-    phenomes::Phenomes;
+    genomes::Genomes;
+    n_loci_alleles::Int64 = 1_000,
+    seed::Int64 = 42,
     plot_size::Tuple{Int64,Int64} = (600, 450),
     colour_scheme::Symbol = :viridis,
 )::T where {T<:ViolinPlots}
     # type = ViolinPlots
     # genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
-    # trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
-    # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing
-    # plot_size = (600, 450); colour_scheme = :viridis;
-    if !checkdims(phenomes)
-        throw(ArgumentError("Phenomes struct is corrupted."))
+    # n_loci_alleles = 1_000; seed = 42; plot_size = (600, 450); colour_scheme = :viridis;
+    if !checkdims(genomes)
+        throw(ArgumentError("Genomes struct is corrupted."))
     end
-    traits::Vector{String} = sort(unique(phenomes.traits))
-    populations::Vector{String} = sort(unique(phenomes.populations))
-    labels = Vector{String}(undef, length(traits))
-    plots = Vector{CairoMakie.Figure}(undef, length(labels))
-    df = tabularise(phenomes)
-    # Reshape so that we have the following fields: entries, populations, traits, y, reversed population ID, and colours per population (needing because all x and y values need to be numeric) for violin plotting
+    rng::TaskLocalRNG = Random.seed!(seed)
+    n, p = size(genomes.allele_frequencies)
+    idx_loci_alleles::Vector{Int64} = sort(sample(rng, 1:p, minimum([n_loci_alleles, p]), replace = false))
+    populations = sort(unique(genomes.populations))
+    counts::Vector{Int64} = [sum(genomes.populations .== population) for population in populations]
     colours =
         repeat(colorschemes[colour_scheme][1:end], Int(ceil(length(populations) / length(colorschemes[colour_scheme]))))
-    df_reshaped = begin
-        df_reshaped = DataFrames.stack(df, propertynames(df)[(end-(length(phenomes.traits)-1)):end])
-        rename!(df_reshaped, :variable => :traits)
-        rename!(df_reshaped, :value => :y)
-        df_reshaped.popid_reversed = [findall(reverse(populations) .== pop)[1] for pop in df_reshaped.populations]
-        df_reshaped.popid_colors =
-            [colours[findall(reverse(populations) .== pop)[1]] for pop in df_reshaped.populations]
-        idx = findall(.!ismissing.(df_reshaped.y) .&& .!isnan.(df_reshaped.y) .&& .!isinf.(df_reshaped.y))
-        df_reshaped[idx, :]
-    end
-    for (i, trait) in enumerate(traits)
-        # i = 1; trait = traits[i]
-        idx = findall(df_reshaped.traits .== trait)
-        fig = if length(idx) > 3
-            counts::Vector{Int64} = [sum(df_reshaped.populations .== population) for population in populations]
-            labels[i] = string("Trait: ", trait, " (per population)")
-            fig = CairoMakie.Figure(size = plot_size)
-            axs = CairoMakie.Axis(
-                fig[1, 1],
-                title = labels[i],
-                yticks = (1:length(populations), reverse(string.(populations, " (n=", counts, ")"))),
-            )
-            CairoMakie.violin!(
-                axs,
-                df_reshaped.popid_reversed[idx],
-                df_reshaped.y[idx],
-                color = df_reshaped.popid_colors[idx],
-                orientation = :horizontal,
-                transparency = 0.75,
-                scale = :width,
-            )
-            CairoMakie.boxplot!(
-                axs,
-                df_reshaped.popid_reversed[idx],
-                df_reshaped.y[idx],
-                orientation = :horizontal,
-                strokewidth = 1,
-                outliercolor = :black,
-                width = 1 / length(populations),
-            )
-            fig
+    pops::Vector{Int64} = []
+    q::Vector{Float64} = []
+    for i = 1:n
+        pop = findall(populations .== genomes.populations[i])[1]
+        for j in idx_loci_alleles
+            qij = genomes.allele_frequencies[i, j]
+            if !ismissing(qij) && !isnan(qij) && !isinf(qij)
+                append!(pops, pop)
+                append!(q, qij)
+            end
         end
-        plots[i] = fig
     end
+    labels = ["Violinplot of allele frequencies per population"]
+    fig = CairoMakie.Figure(size = plot_size)
+    axs = CairoMakie.Axis(
+        fig[1, 1],
+        title = labels[1],
+        yticks = (1:length(populations), reverse(string.(populations, " (n=", counts, ")"))),
+    )
+    CairoMakie.violin!(
+        axs,
+        reverse(pops),
+        reverse(q),
+        color = colours[reverse(pops)],
+        orientation = :horizontal,
+        transparency = 0.75,
+        scale = :width,
+    )
+    # CairoMakie.boxplot!(
+    #     axs,
+    #     reverse(pops),
+    #     reverse(q),
+    #     orientation = :horizontal,
+    #     strokewidth = 1,
+    #     outliercolor = :black,
+    #     width = 1 / length(populations),
+    # )
+    # fig
     # Output
-    out::type = ViolinPlots(labels, plots)
+    out::type = ViolinPlots(labels, [fig])
     out
 end
 
 """
     plot(
         type::Type{T},
-        phenomes::Phenomes;
-        plot_size::Tuple{Int64, Int64} = (600, 450),
+        genomes::Genomes;
+        n_loci_alleles::Int64 = 1_000,
+        seed::Int64 = 42,
+        plot_size::Tuple{Int64,Int64} = (600, 450),
         colour_scheme::Symbol = :viridis,
         rev_label_colors::Bool = false,
+        n_threshold_to_show_text::Int64 = 1_000,
     )::T where {T<:CorHeatPlots}
 
 Correlation heatmaps:
-- between traits across populations
+- between loci_alleles across populations
 - between entries across populations
-- between traits per populations
+- between loci_alleles per populations
 - between entries per populations
+
+Note that we are sample `n_loci_alleles` to use in plotting for computational efficiency. 
+You may use the `seed` parameter for replicability.
 
 # Examples
 ```julia
 julia> genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
-julia> trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
-
-julia> phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
-
-julia> hplots = GBPlots.plot(CorHeatPlots, phenomes);
+julia> hplots = GBPlots.plot(CorHeatPlots, genomes);
 
 julia> fnames = saveplots(hplots, format="png")
 
@@ -187,7 +175,9 @@ julia> rm.(fnames);
 """
 function plot(
     type::Type{T},
-    phenomes::Phenomes;
+    genomes::Genomes;
+    n_loci_alleles::Int64 = 1_000,
+    seed::Int64 = 42,
     plot_size::Tuple{Int64,Int64} = (600, 450),
     colour_scheme::Symbol = :viridis,
     rev_label_colors::Bool = false,
@@ -195,14 +185,15 @@ function plot(
 )::T where {T<:CorHeatPlots}
     # type = CorHeatPlots
     # genomes = GBCore.simulategenomes(n=100, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
-    # trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
-    # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing
-    # plot_size = (700, 500); colour_scheme = :viridis; rev_label_colors = false; n_threshold_to_show_text = 1_000
-    if !checkdims(phenomes)
-        throw(ArgumentError("Phenomes struct is corrupted."))
+    # seed = 42; n_loci_alleles = 1_000; plot_size = (700, 500); colour_scheme = :viridis; rev_label_colors = false; n_threshold_to_show_text = 1_000
+    if !checkdims(genomes)
+        throw(ArgumentError("Genomes struct is corrupted."))
     end
-    traits::Vector{String} = sort(unique(phenomes.traits))
-    populations::Vector{String} = sort(unique(phenomes.populations))
+    rng::TaskLocalRNG = Random.seed!(seed)
+    n, p = size(genomes.allele_frequencies)
+    idx_loci_alleles::Vector{Int64} = sort(sample(rng, 1:p, minimum([n_loci_alleles, p]), replace = false))
+    loci::Vector{String} = sort(genomes.loci_alleles[idx_loci_alleles])
+    populations::Vector{String} = sort(unique(genomes.populations))
     labels = Vector{String}(undef, 2 * (1 + length(populations)))
     plots = Vector{CairoMakie.Figure}(undef, length(labels))
     # Instantiate the vectors of correlation matrices, counts per pairwise correlation, labels and grouping names
@@ -211,20 +202,22 @@ function plot(
     labellings = Vector{Vector{String}}(undef, length(labels))
     groupings = Vector{String}(undef, length(labels))
     # Population the vectors above
-    traits, entries, dist = distances(phenomes, distance_metrics = ["correlation"], standardise_traits = true)
-    correlations[1:2] = [dist["traits|correlation"], dist["entries|correlation"]]
-    counts[1:2] = [Int.(dist["traits|counts"]), Int.(dist["entries|counts"])]
-    labellings[1:2] = [traits, entries]
-    groupings[1:2] = ["between traits across all populations", "between entries across all populations"]
+    loci_alleles, entries, dist =
+        distances(genomes, distance_metrics = ["correlation"], idx_loci_alleles = idx_loci_alleles)
+    correlations[1:2] = [dist["loci_alleles|correlation"], dist["entries|correlation"]]
+    counts[1:2] = [Int.(dist["loci_alleles|counts"]), Int.(dist["entries|counts"])]
+    labellings[1:2] = [loci_alleles, entries]
+    groupings[1:2] = ["between loci_alleles across all populations", "between entries across all populations"]
     i = 3
     for population in populations
-        idx_entries = findall(phenomes.populations .== population)
-        traits_per_pop, entries_per_pop, dist_per_pop =
-            distances(slice(phenomes, idx_entries = idx_entries), distance_metrics = ["correlation"])
-        correlations[i:(i+1)] = [dist_per_pop["traits|correlation"], dist_per_pop["entries|correlation"]]
-        counts[i:(i+1)] = [Int.(dist_per_pop["traits|counts"]), Int.(dist_per_pop["entries|counts"])]
-        labellings[i:(i+1)] = [traits_per_pop, entries_per_pop]
-        groupings[i:(i+1)] = [string("between traits (", population, ")"), string("between entries (", population, ")")]
+        idx_entries = findall(genomes.populations .== population)
+        loci_alleles_per_pop, entries_per_pop, dist_per_pop =
+            distances(slice(genomes, idx_entries = idx_entries), distance_metrics = ["correlation"])
+        correlations[i:(i+1)] = [dist_per_pop["loci_alleles|correlation"], dist_per_pop["entries|correlation"]]
+        counts[i:(i+1)] = [Int.(dist_per_pop["loci_alleles|counts"]), Int.(dist_per_pop["entries|counts"])]
+        labellings[i:(i+1)] = [loci_alleles_per_pop, entries_per_pop]
+        groupings[i:(i+1)] =
+            [string("between loci_alleles (", population, ")"), string("between entries (", population, ")")]
         i += 2
     end
     # Plot heatmaps
@@ -241,7 +234,7 @@ function plot(
         else
             [x < 0.5 ? :black : :white for x in reshape(C, n * n, 1)[:, 1]]
         end
-        labels[i] = string("Correlations (phenotypes) ", grp)
+        labels[i] = string("Correlations (genotypes) ", grp)
         fig = CairoMakie.Figure(size = plot_size)
         axs = CairoMakie.Axis(
             fig[1, 1],
@@ -266,18 +259,18 @@ function plot(
     out
 end
 
-
 """
     plot(
         type::Type{T},
-        phenomes::Phenomes;
+        genomes::Genomes;
+        n_loci_alleles::Int64 = 1_000,
+        seed::Int64 = 42,
         plot_size::Tuple{Int64,Int64} = (600, 450),
-        colour_scheme::Symbol = :tol_light,
+        colour_scheme::Symbol = :tol_muted,
         horizontal::Bool = true,
-        standardise_traits::Bool = true,
     )::T where {T<:TreePlots}
 
-Plot tree diagrams showing the relationships of each entry using trait information.
+Plot tree diagrams showing the relationships of each entry using a subset of the allele frequencies.
 
 - Distance metric: Euclidean
 - Grouping/linkage: Ward's distance
@@ -287,11 +280,7 @@ Plot tree diagrams showing the relationships of each entry using trait informati
 ```julia
 julia> genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
-julia> trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
-
-julia> phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
-
-julia> tplots = GBPlots.plot(TreePlots, phenomes);
+julia> tplots = GBPlots.plot(TreePlots, genomes);
 
 julia> fnames = saveplots(tplots)
 
@@ -300,33 +289,35 @@ julia> rm.(fnames);
 """
 function plot(
     type::Type{T},
-    phenomes::Phenomes;
+    genomes::Genomes;
+    n_loci_alleles::Int64 = 1_000,
+    seed::Int64 = 42,
     plot_size::Tuple{Int64,Int64} = (600, 450),
-    colour_scheme::Symbol = :tol_light,
+    colour_scheme::Symbol = :tol_muted,
     horizontal::Bool = true,
-    standardise_traits::Bool = true,
 )::T where {T<:TreePlots}
     # type = TreePlots
     # genomes = GBCore.simulategenomes(n=100, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
-    # trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
-    # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
-    # plot_size = (700, 500); colour_scheme = :tol_light; horizontal = true; standardise_traits = true;
-    if !checkdims(phenomes)
-        throw(ArgumentError("Phenomes struct is corrupted."))
+    # seed = 42; n_loci_alleles = 1_000; plot_size = (700, 500); colour_scheme::Symbol = :tol_muted; horizontal= true
+    if !checkdims(genomes)
+        throw(ArgumentError("Genomes struct is corrupted."))
     end
-    traits::Vector{String} = sort(unique(phenomes.traits))
-    populations::Vector{String} = sort(unique(phenomes.populations))
+    rng::TaskLocalRNG = Random.seed!(seed)
+    n, p = size(genomes.allele_frequencies)
+    idx_loci_alleles::Vector{Int64} = sort(sample(rng, 1:p, minimum([n_loci_alleles, p]), replace = false))
+    loci::Vector{String} = sort(genomes.loci_alleles[idx_loci_alleles])
+    populations::Vector{String} = sort(unique(genomes.populations))
     labels = Vector{String}(undef, 2)
     plots = Vector{CairoMakie.Figure}(undef, length(labels))
     # Estimate pairwise Euclidean distances
-    traits, entries, dist =
-        distances(phenomes, distance_metrics = ["euclidean"], standardise_traits = standardise_traits)
+    loci_alleles, entries, dist =
+        distances(genomes, distance_metrics = ["euclidean"], idx_loci_alleles = idx_loci_alleles)
     clusters = [
-        Clustering.hclust(dist["traits|euclidean"], linkage = :ward, branchorder = :optimal),
+        Clustering.hclust(dist["loci_alleles|euclidean"], linkage = :ward, branchorder = :optimal),
         Clustering.hclust(dist["entries|euclidean"], linkage = :ward, branchorder = :optimal),
     ]
-    leaves = [phenomes.traits, phenomes.entries]
-    titles = ["Traits dendrogram (phenotypes)", "Entries dendrogram (phenotypes)"]
+    leaves = [genomes.loci_alleles, genomes.entries]
+    titles = ["Traits dendrogram (genotypes)", "Entries dendrogram (genotypes)"]
     for (i, (clust, tips, title)) in enumerate(zip(clusters, leaves, titles))
         # i = 2; clust = clusters[i]; tips = leaves[i]; title = titles[i];
         n = length(tips)
@@ -353,6 +344,7 @@ function plot(
                 yticks = (1:n, tips[clust.order]),
             )
         end
+        # Draw the dendrogram
         colours = repeat(colorschemes[colour_scheme][1:end], Int(ceil(m / length(colorschemes[colour_scheme]))))
         midpoints = fill(0.0, m)
         for i = 1:m
@@ -386,7 +378,9 @@ end
 """
     plot(
         type::Type{T},
-        phenomes::Phenomes;
+        genomes::Genomes;
+        n_loci_alleles::Int64 = 1_000,
+        seed::Int64 = 42,
         plot_size::Tuple{Int64,Int64} = (600, 450),
         colour_scheme::Symbol = :tol_muted,
     )::T where {T<:PCBiPlots}
@@ -408,32 +402,37 @@ julia> rm.(fnames);
 """
 function plot(
     type::Type{T},
-    phenomes::Phenomes;
+    genomes::Genomes;
+    n_loci_alleles::Int64 = 1_000,
+    seed::Int64 = 42,
     plot_size::Tuple{Int64,Int64} = (600, 450),
     colour_scheme::Symbol = :tol_muted,
 )::T where {T<:PCBiPlots}
     # type = PCBiPlots
     # genomes = GBCore.simulategenomes(n=90, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
-    # trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=2, n_seasons=2, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
-    # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
-    # plot_size = (700, 500); colour_scheme::Symbol = :tol_muted;
-    if !checkdims(phenomes)
-        throw(ArgumentError("Phenomes struct is corrupted."))
+    # seed = 42; n_loci_alleles = 1_000; plot_size = (700, 500); colour_scheme::Symbol = :tol_muted;
+    if !checkdims(genomes)
+        throw(ArgumentError("Genomes struct is corrupted."))
     end
-    populations::Vector{String} = sort(unique(phenomes.populations))
-    traits::Vector{String} = sort(phenomes.traits)
+    rng::TaskLocalRNG = Random.seed!(seed)
+    n, p = size(genomes.allele_frequencies)
+    idx_loci_alleles::Vector{Int64} = sort(sample(rng, 1:p, minimum([n_loci_alleles, p]), replace = false))
+    genomes = slice(genomes, idx_loci_alleles = idx_loci_alleles)
+    loci::Vector{String} = sort(unique(genomes.loci_alleles))
+    populations::Vector{String} = sort(unique(genomes.populations))
+    chromosomes, positions, alleles = loci_alleles(genomes)
     labels = Vector{String}(undef, 2)
     # Prepare the allele frequencie matrix    
-    y = mean(phenomes.phenotypes, dims = 1)[1, :]
-    idx_cols = findall(.!ismissing.(y) .&& .!isnan.(y) .&& .!isinf.(y))
-    Y::Matrix{Float64} = phenomes.phenotypes[:, idx_cols]
-    Y = (Y .- mean(Y, dims = 1)) ./ std(Y, dims = 1)
-    labels = ["PCA (phenotypes) biplot of entries", "PCA (phenotypes) biplot of traits"]
+    q = mean(genomes.allele_frequencies, dims = 1)[1, :]
+    idx_cols = findall(.!ismissing.(q) .&& .!isnan.(q) .&& .!isinf.(q))
+    G::Matrix{Float64} = genomes.allele_frequencies[:, idx_cols]
+    G = (G .- mean(G, dims = 1)) ./ std(G, dims = 1)
+    labels = ["PCA (genotypes) biplot of entries", "PCA (genotypes) biplot of loci"]
     fig_entries = begin
-        colours = [findall(populations .== pop)[1] for pop in phenomes.populations]
+        colours = [findall(populations .== pop)[1] for pop in genomes.populations]
         fig = CairoMakie.Figure(size = plot_size)
-        plt = if size(Y, 2) > 2
-            M = fit(PCA, Y)
+        plt = if size(G, 2) > 2
+            M = fit(PCA, G)
             pc1 = M.proj[:, 1]
             pc2 = M.proj[:, 2]
             variances_explained = M.prinvars ./ sum(M.prinvars)
@@ -452,14 +451,14 @@ function plot(
                 colorrange = (1, length(populations)),
             )
         else
-            labels[1] = string(phenomes.traits[idx_cols[1]], " vs ", phenomes.traits[idx_cols[2]])
-            x = Y[:, 1]
-            y = Y[:, 2]
+            labels[1] = string(genomes.loci_alleles[idx_cols[1]], " vs ", genomes.loci_alleles[idx_cols[2]])
+            x = G[:, 1]
+            y = G[:, 2]
             axs = CairoMakie.Axis(
                 fig[1, 1],
                 title = labels[1],
-                xlabel = phenomes.traits[idx_cols[1]],
-                ylabel = phenomes.traits[idx_cols[2]],
+                xlabel = genomes.loci_alleles[idx_cols[1]],
+                ylabel = genomes.loci_alleles[idx_cols[2]],
             )
             CairoMakie.scatter!(
                 axs,
@@ -470,6 +469,27 @@ function plot(
                 colorrange = (1, length(populations)),
             )
         end
+
+        # M = fit(PCA, G)
+        # pc1 = M.proj[:, 1]
+        # pc2 = M.proj[:, 2]
+        # variances_explained = M.prinvars ./ sum(M.prinvars)
+        # colours = [findall(populations .== pop)[1] for pop in genomes.populations]
+        # fig = CairoMakie.Figure(size = plot_size)
+        # axs = CairoMakie.Axis(
+        #     fig[1, 1],
+        #     title = labels[1],
+        #     xlabel = string("PC1 (", round(100 * variances_explained[1], digits = 2), "%)"),
+        #     ylabel = string("PC2 (", round(100 * variances_explained[2], digits = 2), "%)"),
+        # )
+        # plt = CairoMakie.scatter!(
+        #     axs,
+        #     pc1,
+        #     pc2,
+        #     color = colours,
+        #     colormap = colour_scheme,
+        #     colorrange = (1, length(populations)),
+        # )
         colourmap = getproperty(ColorSchemes, plt.colormap[])
         colours = colourmap[range(start = 0.0, stop = 1.0; length = length(populations))]
         elems = [
@@ -478,11 +498,11 @@ function plot(
         CairoMakie.Legend(fig[1, 2], elems, populations)
         fig
     end
-    fig_traits = begin
-        colours = [findall(traits .== trait)[1] for trait in phenomes.traits]
+    fig_loci_alleles = begin
+        colours = [findall(sort(unique(chromosomes)) .== chr)[1] for chr in chromosomes]
         fig = CairoMakie.Figure(size = plot_size)
-        plt = if size(Y, 1) > 2
-            M = fit(PCA, Y')
+        plt = if size(G, 1) > 2
+            M = fit(PCA, G')
             pc1 = M.proj[:, 1]
             pc2 = M.proj[:, 2]
             variances_explained = M.prinvars ./ sum(M.prinvars)
@@ -498,29 +518,56 @@ function plot(
                 pc2,
                 color = colours,
                 colormap = colour_scheme,
-                colorrange = (1, length(traits)),
+                colorrange = (1, length(populations)),
             )
         else
-            labels[1] = string(phenomes.traits[idx_cols[1]], " vs ", phenomes.traits[idx_cols[2]])
-            x = phenomes.phenotypes[:, idx_cols[1]]
-            y = phenomes.phenotypes[:, idx_cols[2]]
+            labels[1] = string(genomes.loci_alleles[idx_cols[1]], " vs ", genomes.loci_alleles[idx_cols[2]])
+            x = G[:, 1]
+            y = G[:, 2]
             axs = CairoMakie.Axis(
                 fig[1, 1],
                 title = labels[1],
-                xlabel = phenomes.traits[idx_cols[1]],
-                ylabel = phenomes.traits[idx_cols[2]],
+                xlabel = genomes.loci_alleles[idx_cols[1]],
+                ylabel = genomes.loci_alleles[idx_cols[2]],
             )
-            CairoMakie.scatter!(axs, x, y, color = colours, colormap = colour_scheme, colorrange = (1, length(traits)))
+            CairoMakie.scatter!(
+                axs,
+                x,
+                y,
+                color = colours,
+                colormap = colour_scheme,
+                colorrange = (1, length(populations)),
+            )
         end
+        # M = fit(PCA, G')
+        # pc1 = M.proj[:, 1]
+        # pc2 = M.proj[:, 2]
+        # variances_explained = M.prinvars ./ sum(M.prinvars)
+        # colours = [findall(sort(unique(chromosomes)) .== chr)[1] for chr in chromosomes]
+        # fig = CairoMakie.Figure(size = plot_size)
+        # axs = CairoMakie.Axis(
+        #     fig[1, 1],
+        #     title = labels[2],
+        #     xlabel = string("PC1 (", round(100 * variances_explained[1], digits = 2), "%)"),
+        #     ylabel = string("PC2 (", round(100 * variances_explained[2], digits = 2), "%)"),
+        # )
+        # plt = CairoMakie.scatter!(
+        #     axs,
+        #     pc1,
+        #     pc2,
+        #     color = colours,
+        #     colormap = colour_scheme,
+        #     colorrange = (1, length(unique(chromosomes))),
+        # )
         colourmap = getproperty(ColorSchemes, plt.colormap[])
-        colours = colourmap[range(start = 0.0, stop = 1.0; length = length(traits))]
+        colours = colourmap[range(start = 0.0, stop = 1.0; length = length(unique(chromosomes)))]
         elems = [
             [MarkerElement(color = col, marker = :circle, markersize = 15, strokecolor = :black)] for col in colours
         ]
-        CairoMakie.Legend(fig[1, 2], elems, traits)
+        CairoMakie.Legend(fig[1, 2], elems, sort(unique(chromosomes)))
         fig
     end
     # Output
-    out::type = PCBiPlots(labels, [fig_entries, fig_traits])
+    out::type = PCBiPlots(labels, [fig_entries, fig_loci_alleles])
     out
 end

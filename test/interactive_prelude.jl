@@ -8,6 +8,6 @@ end
 using GBPlots
 using GBCore
 using StatsBase, MultivariateStats, Distributions, LinearAlgebra
-using DataFrames
+using DataFrames, Random
 using Distances, Clustering, Measures
 using CairoMakie, ColorSchemes

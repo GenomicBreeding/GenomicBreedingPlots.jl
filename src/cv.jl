@@ -4,7 +4,7 @@
         cvs::Vector{CV};
         metric::String = "cor",
         plot_size::Tuple{Int64,Int64} = (600, 450),
-        color_scheme::Symbol = :viridis,
+        colour_scheme::Symbol = :viridis,
     )::T where {T <: BarPlots}
 
 Bar plots summarising the results of a k-fold cross-validation
@@ -55,7 +55,7 @@ function plot(
     cvs::Vector{CV};
     metric::String = "cor",
     plot_size::Tuple{Int64,Int64} = (600, 450),
-    color_scheme::Symbol = :viridis,
+    colour_scheme::Symbol = :viridis,
 )::T where {T<:BarPlots}
     # type = BarPlots
     # cvs::Vector{CV} = []
@@ -88,7 +88,7 @@ function plot(
     #         end
     #     end
     # end
-    # metric = "cor"; plot_size = (600, 450); color_scheme = :viridis;
+    # metric = "cor"; plot_size = (600, 450); colour_scheme = :viridis;
     # Check arguments
     for (i, cv) in enumerate(cvs)
         if !checkdims(cv)
@@ -155,6 +155,7 @@ function plot(
                 end
                 for w_level in w_levels
                     # w_level = ("population_1", "trait_1")
+                    # println(string("cv_type = \"", cv_type, "\"; x_name = \"", x_name, "\"; z_name = \"", z_name, "\"; w_level = \"", w_level, "\""))
                     df_metrics_sub = if isnothing(w_level)
                         df_metrics
                     else
@@ -193,8 +194,12 @@ function plot(
                         x_levels = sort(unique(df[!, Symbol(x_name)]))
                         x = [findall(x_levels .== a)[1] for a in df[!, x_name]]
                         z_levels = sort(unique(df[!, Symbol(z_name)]))
-                        z = [findall(z_levels .== a)[1] for a in df[!, z_name]]
-                        colours = z
+                        z, colours = if length(z_levels) > 1
+                            z = [findall(z_levels .== a)[1] for a in df[!, z_name]]
+                            z, z
+                        else
+                            1, x
+                        end
                         (df, z_levels, z, colours)
                     end
                     # Rename level combinations to fit in th plot area
@@ -268,7 +273,7 @@ function plot(
                         dodge = z,
                         color = colours,
                         colorrange = (1, length(unique(colours))),
-                        colormap = color_scheme,
+                        colormap = colour_scheme,
                         bar_labels = collect(1:length(y)),
                         label_formatter = i ->
                             string(round(y[i], digits = 2), " (±", round(y_std[i], digits = 2), ")"),
@@ -300,7 +305,7 @@ end
         cvs::Vector{CV};
         metric::String = "cor",
         plot_size::Tuple{Int64,Int64} = (600, 450),
-        color_scheme::Symbol = :viridis,
+        colour_scheme::Symbol = :viridis,
     )::T where {T <: BoxPlots}
 
 Box plots summarising the results of a k-fold cross-validation
@@ -351,7 +356,7 @@ function plot(
     cvs::Vector{CV};
     metric::String = "cor",
     plot_size::Tuple{Int64,Int64} = (600, 450),
-    color_scheme::Symbol = :viridis,
+    colour_scheme::Symbol = :viridis,
 )::T where {T<:BoxPlots}
     # type = BoxPlots
     # cvs::Vector{CV} = []
@@ -384,7 +389,7 @@ function plot(
     #         end
     #     end
     # end
-    # metric = "cor"; plot_size = (600, 450); color_scheme = :viridis;
+    # metric = "cor"; plot_size = (600, 450); colour_scheme = :viridis;
     # Check arguments
     for (i, cv) in enumerate(cvs)
         if !checkdims(cv)
@@ -554,7 +559,7 @@ function plot(
                             dodge = df_metrics_sub.__z__,
                             color = df_metrics_sub.__colours__,
                             colorrange = (1, length(unique(df_metrics_sub.__colours__))),
-                            colormap = color_scheme,
+                            colormap = colour_scheme,
                             label = [label => (; color = i) for (i, label) in enumerate(z_levels)],
                         )
                         colourmap = getproperty(ColorSchemes, plt.colormap[])
