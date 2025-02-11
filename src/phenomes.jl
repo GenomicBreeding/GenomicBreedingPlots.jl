@@ -470,12 +470,14 @@ function plot(
                 colorrange = (1, maximum([2, length(populations)])),
             )
         end
-        colourmap = getproperty(ColorSchemes, plt.colormap[])
-        colours = colourmap[range(start = 0.0, stop = 1.0; length = maximum([2, length(populations)]))]
-        elems = [
-            [MarkerElement(color = col, marker = :circle, markersize = 15, strokecolor = :black)] for col in colours
-        ]
-        CairoMakie.Legend(fig[1, 2], elems, populations)
+        if length(populations) > 1
+            colourmap = getproperty(ColorSchemes, plt.colormap[])
+            colours = colourmap[range(start = 0.0, stop = 1.0; length = length(populations))]
+            elems = [
+                [MarkerElement(color = col, marker = :circle, markersize = 15, strokecolor = :black)] for col in colours
+            ]
+            CairoMakie.Legend(fig[1, 2], elems, populations)
+        end
         fig
     end
     fig_traits = begin
@@ -498,7 +500,7 @@ function plot(
                 pc2,
                 color = colours,
                 colormap = colour_scheme,
-                colorrange = (1, length(traits)),
+                colorrange = (1, maximum([2, length(traits)])),
             )
         else
             labels[1] = string(phenomes.traits[idx_cols[1]], " vs ", phenomes.traits[idx_cols[2]])
@@ -510,14 +512,23 @@ function plot(
                 xlabel = phenomes.traits[idx_cols[1]],
                 ylabel = phenomes.traits[idx_cols[2]],
             )
-            CairoMakie.scatter!(axs, x, y, color = colours, colormap = colour_scheme, colorrange = (1, length(traits)))
+            CairoMakie.scatter!(
+                axs,
+                x,
+                y,
+                color = colours,
+                colormap = colour_scheme,
+                colorrange = (1, maximum([2, length(traits)])),
+            )
         end
-        colourmap = getproperty(ColorSchemes, plt.colormap[])
-        colours = colourmap[range(start = 0.0, stop = 1.0; length = length(traits))]
-        elems = [
-            [MarkerElement(color = col, marker = :circle, markersize = 15, strokecolor = :black)] for col in colours
-        ]
-        CairoMakie.Legend(fig[1, 2], elems, traits)
+        if length(traits) > 1
+            colourmap = getproperty(ColorSchemes, plt.colormap[])
+            colours = colourmap[range(start = 0.0, stop = 1.0; length = length(traits))]
+            elems = [
+                [MarkerElement(color = col, marker = :circle, markersize = 15, strokecolor = :black)] for col in colours
+            ]
+            CairoMakie.Legend(fig[1, 2], elems, traits)
+        end
         fig
     end
     # Output

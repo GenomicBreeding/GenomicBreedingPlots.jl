@@ -466,36 +466,17 @@ function plot(
                 y,
                 color = colours,
                 colormap = colour_scheme,
-                colorrange = (1, length(populations)),
+                colorrange = (1, maximum([2, length(populations)])),
             )
         end
-
-        # M = fit(PCA, G)
-        # pc1 = M.proj[:, 1]
-        # pc2 = M.proj[:, 2]
-        # variances_explained = M.prinvars ./ sum(M.prinvars)
-        # colours = [findall(populations .== pop)[1] for pop in genomes.populations]
-        # fig = CairoMakie.Figure(size = plot_size)
-        # axs = CairoMakie.Axis(
-        #     fig[1, 1],
-        #     title = labels[1],
-        #     xlabel = string("PC1 (", round(100 * variances_explained[1], digits = 2), "%)"),
-        #     ylabel = string("PC2 (", round(100 * variances_explained[2], digits = 2), "%)"),
-        # )
-        # plt = CairoMakie.scatter!(
-        #     axs,
-        #     pc1,
-        #     pc2,
-        #     color = colours,
-        #     colormap = colour_scheme,
-        #     colorrange = (1, length(populations)),
-        # )
-        colourmap = getproperty(ColorSchemes, plt.colormap[])
-        colours = colourmap[range(start = 0.0, stop = 1.0; length = maximum([2, length(populations)]))]
-        elems = [
-            [MarkerElement(color = col, marker = :circle, markersize = 15, strokecolor = :black)] for col in colours
-        ]
-        CairoMakie.Legend(fig[1, 2], elems, populations)
+        if length(populations) > 1
+            colourmap = getproperty(ColorSchemes, plt.colormap[])
+            colours = colourmap[range(start = 0.0, stop = 1.0; length = length(populations))]
+            elems = [
+                [MarkerElement(color = col, marker = :circle, markersize = 15, strokecolor = :black)] for col in colours
+            ]
+            CairoMakie.Legend(fig[1, 2], elems, populations)
+        end
         fig
     end
     fig_loci_alleles = begin
@@ -518,7 +499,7 @@ function plot(
                 pc2,
                 color = colours,
                 colormap = colour_scheme,
-                colorrange = (1, length(populations)),
+                colorrange = (1, maximum([2, length(unique(chromosomes))])),
             )
         else
             labels[1] = string(genomes.loci_alleles[idx_cols[1]], " vs ", genomes.loci_alleles[idx_cols[2]])
@@ -536,35 +517,17 @@ function plot(
                 y,
                 color = colours,
                 colormap = colour_scheme,
-                colorrange = (1, maximum([2, length(populations)])),
+                colorrange = (1, maximum([2, length(unique(chromosomes))])),
             )
         end
-        # M = fit(PCA, G')
-        # pc1 = M.proj[:, 1]
-        # pc2 = M.proj[:, 2]
-        # variances_explained = M.prinvars ./ sum(M.prinvars)
-        # colours = [findall(sort(unique(chromosomes)) .== chr)[1] for chr in chromosomes]
-        # fig = CairoMakie.Figure(size = plot_size)
-        # axs = CairoMakie.Axis(
-        #     fig[1, 1],
-        #     title = labels[2],
-        #     xlabel = string("PC1 (", round(100 * variances_explained[1], digits = 2), "%)"),
-        #     ylabel = string("PC2 (", round(100 * variances_explained[2], digits = 2), "%)"),
-        # )
-        # plt = CairoMakie.scatter!(
-        #     axs,
-        #     pc1,
-        #     pc2,
-        #     color = colours,
-        #     colormap = colour_scheme,
-        #     colorrange = (1, length(unique(chromosomes))),
-        # )
-        colourmap = getproperty(ColorSchemes, plt.colormap[])
-        colours = colourmap[range(start = 0.0, stop = 1.0; length = length(unique(chromosomes)))]
-        elems = [
-            [MarkerElement(color = col, marker = :circle, markersize = 15, strokecolor = :black)] for col in colours
-        ]
-        CairoMakie.Legend(fig[1, 2], elems, sort(unique(chromosomes)))
+        if length(unique(chromosomes)) > 1
+            colourmap = getproperty(ColorSchemes, plt.colormap[])
+            colours = colourmap[range(start = 0.0, stop = 1.0; length = length(unique(chromosomes)))]
+            elems = [
+                [MarkerElement(color = col, marker = :circle, markersize = 15, strokecolor = :black)] for col in colours
+            ]
+            CairoMakie.Legend(fig[1, 2], elems, sort(unique(chromosomes)))
+        end
         fig
     end
     # Output
