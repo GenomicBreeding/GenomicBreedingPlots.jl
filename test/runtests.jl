@@ -34,10 +34,13 @@ Documenter.doctest(GBPlots)
     # Phenomes
     for plot_type in plot_types
         println(string("Phenomes: ", plot_type))
-        plots = GBPlots.plot(plot_type, phenomes)
-        fnames = saveplots(plots)
-        @test length(fnames) == length(plots.plots)
-        rm.(fnames)
+        phenomes_2_traits = slice(phenomes, idx_traits = [1, 2])
+        for Φ in [phenomes, phenomes_2_traits]
+            plots = GBPlots.plot(plot_type, Φ)
+            fnames = saveplots(plots)
+            @test length(fnames) == length(plots.plots)
+            rm.(fnames)
+        end
     end
     # CV
     cvs::Vector{CV} = []

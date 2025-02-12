@@ -424,10 +424,28 @@ function plot(
     traits::Vector{String} = sort(phenomes.traits)
     labels = Vector{String}(undef, 2)
     # Prepare the allele frequencie matrix    
-    y = mean(phenomes.phenotypes, dims = 1)[1, :]
-    idx_cols = findall(.!ismissing.(y) .&& .!isnan.(y) .&& .!isinf.(y))
-    Y::Matrix{Float64} = phenomes.phenotypes[:, idx_cols]
-    Y = (Y .- mean(Y, dims = 1)) ./ std(Y, dims = 1)
+    Y, traits = begin
+        n, t = size(phenomes.phenotypes)
+        y1 = mean(phenomes.phenotypes, dims = 2)[:, 1]
+        y2 = mean(phenomes.phenotypes, dims = 1)[1, :]
+        idx_rows = findall(.!ismissing.(y1) .&& .!isnan.(y1) .&& .!isinf.(y1))
+        idx_cols = findall(.!ismissing.(y2) .&& .!isnan.(y2) .&& .!isinf.(y2))
+        A, traits = if (length(idx_cols) == 0) || (length(idx_rows) / n >= length(idx_cols) / t)
+            A = phenomes.phenotypes[idx_rows, :]
+            a = mean(A, dims = 1)[1, :]
+            idx_cols = findall(.!ismissing.(a) .&& .!isnan.(a) .&& .!isinf.(a))
+            (A[:, idx_cols], phenomes.traits[idx_cols])
+        elseif (length(idx_rows) == 0) || (length(idx_rows) / n <= length(idx_cols) / t)
+            A = phenomes.phenotypes[:, idx_cols]
+            a = mean(A, dims = 2)[:, 1]
+            idx_rows = findall(.!ismissing.(a) .&& .!isnan.(a) .&& .!isinf.(a))
+            (A[idx_rows, :], phenomes.traits[idx_cols])
+        else
+            return PCBiPlots(["Phenomes struct too sparse"], [CairoMakie.Figure()])
+        end
+        Y::Matrix{Float64} = (A .- mean(A, dims = 1)) ./ std(A, dims = 1)
+        (Y, traits)
+    end
     labels = ["PCA (phenotypes) biplot of entries", "PCA (phenotypes) biplot of traits"]
     fig_entries = begin
         colours = [findall(populations .== pop)[1] for pop in phenomes.populations]
@@ -452,7 +470,7 @@ function plot(
                 colorrange = (1, maximum([2, length(populations)])),
             )
         else
-            labels[1] = string(phenomes.traits[idx_cols[1]], " vs ", phenomes.traits[idx_cols[2]])
+            labels[1] = string(traits[1], " vs ", traits[2])
             x = Y[:, 1]
             y = Y[:, 2]
             axs = CairoMakie.Axis(
