@@ -316,7 +316,7 @@ function plot(
         Clustering.hclust(dist["loci_alleles|euclidean"], linkage = :ward, branchorder = :optimal),
         Clustering.hclust(dist["entries|euclidean"], linkage = :ward, branchorder = :optimal),
     ]
-    leaves = [genomes.loci_alleles, genomes.entries]
+    leaves = [genomes.loci_alleles[idx_loci_alleles], genomes.entries]
     titles = ["Loci-alleles dendrogram (genotypes)", "Entries dendrogram (genotypes)"]
     for (i, (clust, tips, title)) in enumerate(zip(clusters, leaves, titles))
         # i = 2; clust = clusters[i]; tips = leaves[i]; title = titles[i];
