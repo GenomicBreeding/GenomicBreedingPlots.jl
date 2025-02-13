@@ -290,6 +290,7 @@ function plot(
                             string(round(y[i], digits = 2)),
                         label_size = font_size_labels,
                         label = [label => (; color = i) for (i, label) in enumerate(z_levels)],
+                        flip_labels_at = 0.0,
                         direction = :x,
                     )
                     if length(z) > 1
