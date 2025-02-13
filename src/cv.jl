@@ -264,14 +264,20 @@ function plot(
                         )
                     end
                     # Plot
-                    x_limits = sort([minimum([0.0, minimum(y)]), 1.5 * maximum(y)])
+                    x_limits = if (minimum(y) < 0.0) && (maximum(y) < 0.0)
+                        (1.5 * minimum(y), 0.5)
+                    elseif (minimum(y) < 0.0) && (maximum(y) >= 0.0)
+                        (1.5 * minimum(y), 1.5 * maximum(y))
+                    else
+                        (0.0, 1.5 * maximum(y))
+                    end
                     fig = CairoMakie.Figure(size = plot_size)
                     axs = CairoMakie.Axis(
                         fig[1, 1],
                         title = title,
                         xlabel = "GEBV Accuracy",
                         ylabel = x_name,
-                        limits = ((x_limits[1], x_limits[2]), nothing),
+                        limits = (x_limits, nothing),
                         yticks = (1:length(x_levels), x_levels),
                         yreversed = true,
                     )
@@ -290,7 +296,6 @@ function plot(
                             string(round(y[i], digits = 2)),
                         label_size = font_size_labels,
                         label = [label => (; color = i) for (i, label) in enumerate(z_levels)],
-                        flip_labels_at = 0.0,
                         direction = :x,
                     )
                     if length(z) > 1
@@ -556,14 +561,20 @@ function plot(
                         )
                     end
                     # Plot
-                    y_limits = sort([minimum([0.0, minimum(df_metrics_sub.__y__)]), 1.5 * maximum(df_metrics_sub.__y__)])
+                    y_limits = if (minimum(df_metrics_sub.__y__) < 0.0) && (maximum(df_metrics_sub.__y__) < 0.0)
+                        (1.5 * minimum(df_metrics_sub.__y__), 0.5)
+                    elseif (minimum(df_metrics_sub.__y__) < 0.0) && (maximum(df_metrics_sub.__y__) >= 0.0)
+                        (1.5 * minimum(df_metrics_sub.__y__), 1.5 * maximum(df_metrics_sub.__y__))
+                    else
+                        (0.0, 1.5 * maximum(df_metrics_sub.__y__))
+                    end
                     fig = CairoMakie.Figure(size = plot_size)
                     axs = CairoMakie.Axis(
                         fig[1, 1],
                         title = title,
                         xlabel = x_name,
                         ylabel = "GEBV Accuracy",
-                        limits = (nothing, (y_limits[1], y_limits[2])),
+                        limits = (nothing, y_limits),
                         xticks = (1:length(x_levels), x_levels),
                     )
                     plt = if length(z_levels) == 1
