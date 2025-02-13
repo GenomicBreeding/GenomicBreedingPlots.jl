@@ -264,13 +264,14 @@ function plot(
                         )
                     end
                     # Plot
+                    x_limits = sort([minimum([0.0, minimum(y)]), 1.5 * maximum(y)])
                     fig = CairoMakie.Figure(size = plot_size)
                     axs = CairoMakie.Axis(
                         fig[1, 1],
                         title = title,
                         xlabel = "GEBV Accuracy",
                         ylabel = x_name,
-                        limits = ((minimum([0.0, minimum(y)]), 1.5 * maximum(y)), nothing),
+                        limits = ((x_limits[1], x_limits[2]), nothing),
                         yticks = (1:length(x_levels), x_levels),
                         yreversed = true,
                     )
@@ -554,16 +555,14 @@ function plot(
                         )
                     end
                     # Plot
+                    y_limits = sort([minimum([0.0, minimum(df_metrics_sub.__y__)]), 1.5 * maximum(df_metrics_sub.__y__)])
                     fig = CairoMakie.Figure(size = plot_size)
                     axs = CairoMakie.Axis(
                         fig[1, 1],
                         title = title,
                         xlabel = x_name,
                         ylabel = "GEBV Accuracy",
-                        limits = (
-                            nothing,
-                            (minimum([0.0, minimum(df_metrics_sub.__y__)]), 1.5 * maximum(df_metrics_sub.__y__)),
-                        ),
+                        limits = (nothing, (y_limits[1], y_limits[2])),
                         xticks = (1:length(x_levels), x_levels),
                     )
                     plt = if length(z_levels) == 1
