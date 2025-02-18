@@ -94,7 +94,11 @@ function saveplots(
                 throw(ErrorException("Cannot overwrite exisiting file: `" * fnames[i] * "`."))
             end
         end
-        CairoMakie.save(fnames[i], plots.plots[j])
+        try
+            CairoMakie.save(fnames[i], plots.plots[j])
+        catch
+            continue
+        end
     end
     fnames
 end

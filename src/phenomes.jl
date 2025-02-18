@@ -43,15 +43,14 @@ function plot(
         # i = 1; trait = traits[i]
         y = df[:, trait]
         idx = findall(.!ismissing.(y) .&& .!isnan.(y) .&& .!isinf.(y))
-        fig = if length(idx) > 3
+        if length(idx) > 3
             y = y[idx]
             labels[i] = string("Trait: ", trait, " (n=", length(idx), ")")
             fig = CairoMakie.Figure(size = plot_size)
             axs = CairoMakie.Axis(fig[1, 1], title = labels[i])
             CairoMakie.density!(axs, y)
-            fig
+            plots[i] = fig
         end
-        plots[i] = fig
     end
     # Output
     out::type = DistributionPlots(labels, plots)
@@ -119,7 +118,7 @@ function plot(
     for (i, trait) in enumerate(traits)
         # i = 1; trait = traits[i]
         idx = findall(df_reshaped.traits .== trait)
-        fig = if length(idx) > 3
+        if length(idx) > 3
             counts::Vector{Int64} = [sum(df_reshaped.populations .== population) for population in populations]
             labels[i] = string("Trait: ", trait, " (per population)")
             fig = CairoMakie.Figure(size = plot_size)
@@ -146,9 +145,8 @@ function plot(
                 outliercolor = :black,
                 width = 1 / length(populations),
             )
-            fig
+            plots[i] = fig
         end
-        plots[i] = fig
     end
     # Output
     out::type = ViolinPlots(labels, plots)
@@ -210,7 +208,7 @@ function plot(
     counts = Vector{Matrix{Int64}}(undef, length(labels))
     labellings = Vector{Vector{String}}(undef, length(labels))
     groupings = Vector{String}(undef, length(labels))
-    # Population the vectors above
+    # Population vectors above
     traits, entries, dist = distances(phenomes, distance_metrics = ["correlation"], standardise_traits = true)
     correlations[1:2] = [dist["traits|correlation"], dist["entries|correlation"]]
     counts[1:2] = [Int.(dist["traits|counts"]), Int.(dist["entries|counts"])]
