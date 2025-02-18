@@ -211,8 +211,11 @@ function plot(
     i = 3
     for population in populations
         idx_entries = findall(genomes.populations .== population)
-        loci_alleles_per_pop, entries_per_pop, dist_per_pop =
+        loci_alleles_per_pop, entries_per_pop, dist_per_pop = try
             distances(slice(genomes, idx_entries = idx_entries), distance_metrics = ["correlation"])
+        catch
+            continue
+        end
         correlations[i:(i+1)] = [dist_per_pop["loci_alleles|correlation"], dist_per_pop["entries|correlation"]]
         counts[i:(i+1)] = [Int.(dist_per_pop["loci_alleles|counts"]), Int.(dist_per_pop["entries|counts"])]
         labellings[i:(i+1)] = [loci_alleles_per_pop, entries_per_pop]
@@ -425,6 +428,9 @@ function plot(
     # Prepare the allele frequencie matrix    
     q = mean(genomes.allele_frequencies, dims = 1)[1, :]
     idx_cols = findall(.!ismissing.(q) .&& .!isnan.(q) .&& .!isinf.(q))
+    if length(idx_cols) == 0
+        throw(ErrorException("Genomes struct too sparse"))
+    end
     G::Matrix{Float64} = genomes.allele_frequencies[:, idx_cols]
     G = (G .- mean(G, dims = 1)) ./ std(G, dims = 1)
     labels = ["PCA (genotypes) biplot of entries", "PCA (genotypes) biplot of loci"]

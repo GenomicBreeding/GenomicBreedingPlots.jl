@@ -217,8 +217,11 @@ function plot(
     i = 3
     for population in populations
         idx_entries = findall(phenomes.populations .== population)
-        traits_per_pop, entries_per_pop, dist_per_pop =
+        traits_per_pop, entries_per_pop, dist_per_pop = try
             distances(slice(phenomes, idx_entries = idx_entries), distance_metrics = ["correlation"])
+        catch
+            continue
+        end
         correlations[i:(i+1)] = [dist_per_pop["traits|correlation"], dist_per_pop["entries|correlation"]]
         counts[i:(i+1)] = [Int.(dist_per_pop["traits|counts"]), Int.(dist_per_pop["entries|counts"])]
         labellings[i:(i+1)] = [traits_per_pop, entries_per_pop]
@@ -389,7 +392,7 @@ end
         colour_scheme::Symbol = :tol_muted,
     )::T where {T<:PCBiPlots}
 
-Using a subset of the allele frequencies, plot the first 2 principal components of the:
+Plot the first 2 principal components of the:
 - entries
 - loci-alleles
 
@@ -439,7 +442,7 @@ function plot(
             idx_rows = findall(.!ismissing.(a) .&& .!isnan.(a) .&& .!isinf.(a))
             (A[idx_rows, :], phenomes.traits[idx_cols])
         else
-            return PCBiPlots(["Phenomes struct too sparse"], [CairoMakie.Figure()])
+            throw(ErrorException("Phenomes struct too sparse"))
         end
         Y::Matrix{Float64} = (A .- mean(A, dims = 1)) ./ std(A, dims = 1)
         (Y, traits)
