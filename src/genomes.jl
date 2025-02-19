@@ -432,7 +432,14 @@ function plot(
         throw(ErrorException("Genomes struct too sparse"))
     end
     G::Matrix{Float64} = genomes.allele_frequencies[:, idx_cols]
-    G = (G .- mean(G, dims = 1)) ./ std(G, dims = 1)
+    # Remove columns with zero variance
+    μ = mean(G, dims = 1)
+    σ = std(G, dims = 1)
+    idx = findall(σ[1, :] .> 0.0)
+    G = G[:, idx]
+    μ = mean(G, dims = 1)
+    σ = std(G, dims = 1)
+    G = (G .- μ) ./ σ
     labels = ["PCA (genotypes) biplot of entries", "PCA (genotypes) biplot of loci"]
     fig_entries = begin
         colours = [findall(populations .== pop)[1] for pop in genomes.populations]

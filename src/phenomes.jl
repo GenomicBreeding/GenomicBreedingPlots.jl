@@ -444,7 +444,14 @@ function plot(
         else
             throw(ErrorException("Phenomes struct too sparse"))
         end
-        Y::Matrix{Float64} = (A .- mean(A, dims = 1)) ./ std(A, dims = 1)
+        # Remove columns with zero variance
+        μ = mean(A, dims = 1)
+        σ = std(A, dims = 1)
+        idx = findall(σ[1, :] .> 0.0)
+        A = A[:, idx]
+        μ = mean(A, dims = 1)
+        σ = std(A, dims = 1)
+        Y::Matrix{Float64} = (A .- μ) ./ σ
         (Y, traits)
     end
     labels = ["PCA (phenotypes) biplot of entries", "PCA (phenotypes) biplot of traits"]
@@ -452,7 +459,7 @@ function plot(
         colours = [findall(populations .== pop)[1] for pop in phenomes.populations]
         fig = CairoMakie.Figure(size = plot_size)
         plt = if size(Y, 2) > 2
-            M = fit(PCA, Y)
+            M = MultivariateStats.fit(PCA, Y)
             pc1 = M.proj[:, 1]
             pc2 = M.proj[:, 2]
             variances_explained = M.prinvars ./ sum(M.prinvars)
@@ -503,7 +510,7 @@ function plot(
         colours = [findall(traits .== trait)[1] for trait in phenomes.traits]
         fig = CairoMakie.Figure(size = plot_size)
         plt = if size(Y, 1) > 2
-            M = fit(PCA, Y')
+            M = MultivariateStats.fit(PCA, Y')
             pc1 = M.proj[:, 1]
             pc2 = M.proj[:, 2]
             variances_explained = M.prinvars ./ sum(M.prinvars)
