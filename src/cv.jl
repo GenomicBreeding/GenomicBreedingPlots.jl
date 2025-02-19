@@ -115,6 +115,7 @@ function plot(
     # i = 1
     for cv_type in ["Within population", "Across populations"]
         # cv_type = "Across populations"
+        # cv_type = "Within population"
         df_metrics, x_names, z_names = if cv_type == "Within population"
             # Within population CV results
             idx = findall(
@@ -134,9 +135,9 @@ function plot(
             (df_metrics, x_names, z_names)
         end
         for x_name in x_names
-            # x_name = x_names[1]
+            # x_name = x_names[2]
             for z_name in z_names
-                # z_name = z_names[1]
+                # z_name = z_names[end]
                 if x_name == z_name
                     continue
                 end
@@ -161,7 +162,7 @@ function plot(
                     (w_name, w_levels)
                 end
                 for w_level in w_levels
-                    # w_level = w_levels[6]
+                    # w_level = w_levels[1]
                     # w_level = ("population_1", "trait_1")
                     # println(string("cv_type = \"", cv_type, "\"; x_name = \"", x_name, "\"; z_name = \"", z_name, "\"; w_level = \"", w_level, "\""))
                     df_metrics_sub = if isnothing(w_level)
@@ -224,6 +225,7 @@ function plot(
                     y_std = df[!, string(metric, "_std")]
                     n = length(x_levels) * length(z_levels)
                     font_size_labels = minimum([14, 20 / (0.1 * n)])
+                    font_size_legend = minimum([14, 20 / (0.1 * length(z_levels))])
                     title, label = if isnothing(w_level)
                         across_names = x_names[[sum([x_name, z_name] .== a) == 0 for a in x_names]]
                         title = string("Across ", across_names[1], " and ", across_names[2])
@@ -277,6 +279,7 @@ function plot(
                         title = title,
                         xlabel = "GEBV Accuracy",
                         ylabel = x_name,
+                        yticklabelsize = font_size_labels,
                         limits = (x_limits, nothing),
                         yticks = (1:length(x_levels), x_levels),
                         yreversed = true,
@@ -299,7 +302,7 @@ function plot(
                         direction = :x,
                     )
                     if length(z) > 1
-                        CairoMakie.Legend(fig[1, 2], axs)
+                        CairoMakie.Legend(fig[1, 2], axs, labelsize = font_size_legend)
                     end
                     # fig
                     # println(i); i += 1
@@ -433,6 +436,7 @@ function plot(
     # i = 1
     for cv_type in ["Within population", "Across populations"]
         # cv_type = "Across populations"
+        # cv_type = "Within population"
         df_metrics, x_names, z_names = if cv_type == "Within population"
             # Within population CV results
             idx = findall(
@@ -452,9 +456,9 @@ function plot(
             (df_metrics, x_names, z_names)
         end
         for x_name in x_names
-            # x_name = x_names[1]
+            # x_name = x_names[2]
             for z_name in z_names
-                # z_name = z_names[1]
+                # z_name = z_names[end]
                 if x_name == z_name
                     continue
                 end
@@ -479,6 +483,7 @@ function plot(
                     (w_name, w_levels)
                 end
                 for w_level in w_levels
+                    # w_level = w_levels[1]
                     # w_level = ("population_1", "model_1")
                     # println(i); i += 1
                     # println(string("cv_type = \"", cv_type, "\"; x_name = \"", x_name, "\"; z_name = \"", z_name, "\"; w_level = \"", w_level, "\""))
@@ -521,6 +526,7 @@ function plot(
                     df_metrics_sub.__y__ = df_metrics_sub[!, metric]
                     n = length(x_levels) * length(z_levels)
                     font_size_labels = minimum([14, 20 / (0.1 * n)])
+                    font_size_legend = minimum([14, 20 / (0.1 * length(z_levels))])
                     title, label = if isnothing(w_level)
                         across_names = x_names[[sum([x_name, z_name] .== a) == 0 for a in x_names]]
                         title = string("Across ", across_names[1], " and ", across_names[2])
@@ -572,13 +578,32 @@ function plot(
                     axs = CairoMakie.Axis(
                         fig[1, 1],
                         title = title,
-                        xlabel = x_name,
-                        ylabel = "GEBV Accuracy",
-                        limits = (nothing, y_limits),
-                        xticks = (1:length(x_levels), x_levels),
+                        ylabel = x_name,
+                        yticklabelsize = font_size_labels,
+                        xlabel = "GEBV Accuracy",
+                        limits = (y_limits, nothing),
+                        yticks = (1:length(x_levels), x_levels),
+                        yreversed = true,
                     )
-                    plt = if length(z_levels) == 1
-                        CairoMakie.boxplot!(axs, df_metrics_sub.__x__, df_metrics_sub.__y__, dodge = df_metrics_sub.__z__)
+                    plt = if (length(x_levels) == 1) && (length(z_levels) == 1)
+                        CairoMakie.boxplot!(
+                            axs,
+                            df_metrics_sub.__x__,
+                            df_metrics_sub.__y__,
+                            colormap = colour_scheme,
+                            orientation = :horizontal,
+                        )
+                    elseif (length(x_levels) > 1) && (length(z_levels) == 1)
+                        CairoMakie.boxplot!(
+                            axs,
+                            df_metrics_sub.__x__,
+                            df_metrics_sub.__y__,
+                            dodge = df_metrics_sub.__z__,
+                            color = df_metrics_sub.__colours__,
+                            colorrange = (1, maximum([2, length(unique(df_metrics_sub.__colours__))])),
+                            colormap = colour_scheme,
+                            orientation = :horizontal,
+                        )
                     else
                         plt = CairoMakie.boxplot!(
                             axs,
@@ -589,6 +614,7 @@ function plot(
                             colorrange = (1, maximum([2, length(unique(df_metrics_sub.__colours__))])),
                             colormap = colour_scheme,
                             label = [label => (; color = i) for (i, label) in enumerate(z_levels)],
+                            orientation = :horizontal,
                         )
                         colourmap = getproperty(ColorSchemes, plt.colormap[])
                         colours = colourmap[range(
@@ -599,10 +625,10 @@ function plot(
                         elems = [
                             [MarkerElement(color = col, marker = :circle, markersize = 15, strokecolor = :black)] for col in colours
                         ]
-                        CairoMakie.Legend(fig[1, 2], elems, z_levels)
+                        CairoMakie.Legend(fig[1, 2], elems, z_levels, labelsize = font_size_legend)
                         plt
                     end
-                    fig
+                    # fig
                     push!(labels, label)
                     push!(plots, fig)
                 end
