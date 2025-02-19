@@ -598,9 +598,8 @@ function plot(
                             axs,
                             df_metrics_sub.__x__,
                             df_metrics_sub.__y__,
-                            dodge = df_metrics_sub.__z__,
-                            color = df_metrics_sub.__colours__,
-                            colorrange = (1, maximum([2, length(unique(df_metrics_sub.__colours__))])),
+                            color = df_metrics_sub.__x__,
+                            colorrange = (1, maximum([2, length(unique(df_metrics_sub.__x__))])),
                             colormap = colour_scheme,
                             orientation = :horizontal,
                         )
