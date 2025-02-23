@@ -269,8 +269,7 @@ function plot(
                     x_limits = if (minimum(y) < 0.0) && (maximum(y) < 0.0)
                         (1.5 * minimum(y), 0.5)
                     elseif (minimum(y) < 0.0) && (maximum(y) >= 0.0)
-                        # (1.5 * minimum(y), 1.5 * maximum(y))
-                        (-1.00 * ((1.5 * maximum(y)) + abs(minimum(y))), 1.5 * maximum(y))
+                        (2.0 * minimum(y), 1.5 * maximum(y))
                     else
                         (0.0, 1.5 * maximum(y))
                     end
