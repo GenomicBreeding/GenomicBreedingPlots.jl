@@ -236,7 +236,11 @@ function plot(
         font_size_labels = minimum([20, 9 / (0.1 * n)])
         x = repeat(1:n, inner = n)
         y = repeat(1:n, outer = n)
-        c = string.(round.(reshape(C, n * n, 1)[:, 1], digits = 2), "\n(n=", reshape(N, n * n, 1)[:, 1], ")")
+        c = if length(unique(N)) > 1
+            string.(round.(reshape(C, n * n, 1)[:, 1], digits = 2), "\n(n=", reshape(N, n * n, 1)[:, 1], ")")
+        else
+            string.(round.(reshape(C, n * n, 1)[:, 1], digits = 2))
+        end
         col = if !rev_label_colors
             [x > 0.5 ? :black : :white for x in reshape(C, n * n, 1)[:, 1]]
         else
