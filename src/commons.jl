@@ -35,10 +35,40 @@ mutable struct PCBiPlots <: PlotsGB
     plots::Vector{CairoMakie.Figure}
 end
 
+"""
+    checkdims(x::PlotsGB)::Bool
+
+Check if dimensions of labels and plots match in a PlotsGB object.
+
+# Arguments
+- `x::PlotsGB`: A PlotsGB object containing labels and plots
+
+# Returns
+- `Bool`: `true` if the number of labels equals the number of plots, `false` otherwise
+
+"""
 function GBCore.checkdims(x::PlotsGB)::Bool
     length(x.labels) == length(x.plots)
 end
 
+"""
+    labeltofname(; label::String, prefix::String, suffix::String)::String
+
+Convert a label string into a valid filename by replacing special characters.
+
+This function takes a label string and converts it into a filename-safe string by:
+1. Replacing common symbols with underscores
+2. Adding a prefix and suffix
+3. Cleaning up repeated separators
+
+# Arguments
+- `label::String`: The input label to be converted
+- `prefix::String`: String to prepend to the filename
+- `suffix::String`: The file extension (without the dot)
+
+# Returns
+- `String`: A cleaned filename string with format "prefix-label.suffix"
+"""
 function labeltofname(; label::String, prefix::String, suffix::String)::String
     symbol_strings::Vector{String} = [" ", "\n", "\t", "(", ")", "&", "|", ":", "=", "+", "-", "*", "/", "%"]
     for s in symbol_strings
@@ -52,6 +82,27 @@ function labeltofname(; label::String, prefix::String, suffix::String)::String
     fname
 end
 
+"""
+    saveplots(plots::PlotsGB; idx::Vector{Int64}=[0], format::String="svg", 
+              prefix::String="", use_labels::Bool=true, overwrite::Bool=false)::Vector{String}
+
+Save plots from a PlotsGB object to files in the specified format.
+
+# Arguments
+- `plots::PlotsGB`: A PlotsGB object containing the plots to be saved
+- `idx::Vector{Int64}`: Indices of plots to save. Default `[0]` saves all plots
+- `format::String`: Output file format, one of "svg", "png", or "pdf". Default "svg"
+- `prefix::String`: Prefix for output filenames. Default uses type name of plots
+- `use_labels::Bool`: If true, use plot labels in filenames; if false, use numeric indices. Default true
+- `overwrite::Bool`: If true, overwrite existing files; if false, throw error. Default false
+
+# Returns
+- `Vector{String}`: Vector of filenames where plots were saved
+
+# Throws
+- `ArgumentError`: If plots object is corrupted, indices are invalid, or format is unsupported
+- `ErrorException`: If attempting to overwrite existing files when overwrite=false
+"""
 function saveplots(
     plots::PlotsGB;
     idx::Vector{Int64} = [0],
