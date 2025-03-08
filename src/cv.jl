@@ -1,13 +1,32 @@
 """
-    plot(
-        type::Type{T},
-        cvs::Vector{CV};
-        metric::String = "cor",
-        plot_size::Tuple{Int64,Int64} = (600, 450),
-        colour_scheme::Symbol = :viridis,
-    )::T where {T <: BarPlots}
+    plot(type::Type{T}, cvs::Vector{CV}; metric::String="cor", plot_size::Tuple{Int64,Int64}=(600,450), colour_scheme::Symbol=:viridis)::T where {T<:BarPlots}
 
-Bar plots summarising the results of a k-fold cross-validation
+Generate bar plots visualizing cross-validation results from genomic prediction models.
+
+# Arguments
+- `type::Type{T}`: The type of plot output, must be a subtype of BarPlots
+- `cvs::Vector{CV}`: Vector of cross-validation results objects
+- `metric::String="cor"`: The metric to plot (e.g. "cor" for correlation, "rmse" for root mean square error)
+- `plot_size::Tuple{Int64,Int64}=(600,450)`: Size of the output plots in pixels
+- `colour_scheme::Symbol=:viridis`: Color scheme to use for the plots
+
+# Returns
+- `::T`: A BarPlots object containing the generated plots and their labels
+
+# Details
+Creates various bar plots showing model performance across:
+- Within-population cross-validation results
+- Across-population cross-validation results
+For each case, generates plots showing performance by:
+- Model
+- Trait
+- Population
+With appropriate grouping and faceting based on the CV structure.
+
+Each bar shows the mean metric value with standard deviation in parentheses.
+
+# Throws
+- `ArgumentError`: If any CV object is corrupted or if the requested metric doesn't exist
 
 # Examples
 ```julia
@@ -320,17 +339,41 @@ function plot(
 end
 
 """
-    plot(
-        type::Type{T},
-        cvs::Vector{CV};
-        metric::String = "cor",
-        plot_size::Tuple{Int64,Int64} = (600, 450),
-        colour_scheme::Symbol = :viridis,
-    )::T where {T <: BoxPlots}
+    plot(type::Type{T}, cvs::Vector{CV}; metric::String="cor", plot_size::Tuple{Int64,Int64}=(600,450), colour_scheme::Symbol=:viridis)::T where {T<:BoxPlots}
 
-Box plots summarising the results of a k-fold cross-validation
+Generate box plots visualizing cross-validation results from genomic prediction models.
 
-# Examples
+# Arguments
+- `type::Type{T}`: The type of BoxPlots to generate
+- `cvs::Vector{CV}`: Vector of cross-validation (CV) results
+- `metric::String="cor"`: Metric to plot (e.g. "cor" for correlation, "rmse" for root mean square error)
+- `plot_size::Tuple{Int64,Int64}=(600,450)`: Size of the output plots in pixels
+- `colour_scheme::Symbol=:viridis`: Color scheme to use for the plots
+
+# Returns
+- `BoxPlots`: A struct containing labels and plots visualizing the cross-validation results
+
+# Details
+Creates box plots showing genomic prediction accuracy metrics across different:
+- Within-population cross-validation scenarios
+- Across-population cross-validation scenarios
+
+The plots are organized by combinations of:
+- Models
+- Traits
+- Populations
+- Training/validation population combinations
+
+Each plot shows the distribution of the specified accuracy metric, with options for:
+- Single or multiple groups per trait/model
+- Horizontal orientation
+- Custom color schemes
+- Automatic sizing and formatting
+
+# Throws
+- `ArgumentError`: If CV elements are corrupted or if specified metric doesn't exist
+
+# Example 
 ```julia
 julia> cvs::Vector{CV} = [];
 

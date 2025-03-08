@@ -1,35 +1,103 @@
+"""
+    abstract type PlotsGB end
+
+Abstract type representing the base type for various plotting structures in GBPlots.
+"""
 abstract type PlotsGB end
 
+"""
+    DistributionPlots <: PlotsGB
+
+Mutable struct for storing distribution plots.
+
+# Fields
+- `labels::Vector{String}`: Vector containing labels for the plots
+- `plots::Vector{CairoMakie.Figure}`: Vector containing the distribution plot figures
+"""
 mutable struct DistributionPlots <: PlotsGB
     labels::Vector{String}
     plots::Vector{CairoMakie.Figure}
 end
 
+"""
+    ViolinPlots <: PlotsGB
+
+Mutable struct for storing violin plots.
+
+# Fields
+- `labels::Vector{String}`: Vector containing labels for the plots
+- `plots::Vector{CairoMakie.Figure}`: Vector containing the violin plot figures
+"""
 mutable struct ViolinPlots <: PlotsGB
     labels::Vector{String}
     plots::Vector{CairoMakie.Figure}
 end
 
+"""
+    CorHeatPlots <: PlotsGB
+
+Mutable struct for storing correlation heatmap plots.
+
+# Fields
+- `labels::Vector{String}`: Vector containing labels for the plots
+- `plots::Vector{CairoMakie.Figure}`: Vector containing the correlation heatmap figures
+"""
 mutable struct CorHeatPlots <: PlotsGB
     labels::Vector{String}
     plots::Vector{CairoMakie.Figure}
 end
 
+"""
+    TreePlots <: PlotsGB
+
+Mutable struct for storing tree visualization plots.
+
+# Fields
+- `labels::Vector{String}`: Vector containing labels for the plots
+- `plots::Vector{CairoMakie.Figure}`: Vector containing the tree plot figures
+"""
 mutable struct TreePlots <: PlotsGB
     labels::Vector{String}
     plots::Vector{CairoMakie.Figure}
 end
 
+"""
+    BarPlots <: PlotsGB
+
+Mutable struct for storing bar plots.
+
+# Fields
+- `labels::Vector{String}`: Vector containing labels for the plots
+- `plots::Vector{CairoMakie.Figure}`: Vector containing the bar plot figures
+"""
 mutable struct BarPlots <: PlotsGB
     labels::Vector{String}
     plots::Vector{CairoMakie.Figure}
 end
 
+"""
+    BoxPlots <: PlotsGB
+
+Mutable struct for storing box plots.
+
+# Fields
+- `labels::Vector{String}`: Vector containing labels for the plots
+- `plots::Vector{CairoMakie.Figure}`: Vector containing the box plot figures
+"""
 mutable struct BoxPlots <: PlotsGB
     labels::Vector{String}
     plots::Vector{CairoMakie.Figure}
 end
 
+"""
+    PCBiPlots <: PlotsGB
+
+Mutable struct for storing principal component or biplot visualizations.
+
+# Fields
+- `labels::Vector{String}`: Vector containing labels for the plots
+- `plots::Vector{CairoMakie.Figure}`: Vector containing the PC/biplot figures
+"""
 mutable struct PCBiPlots <: PlotsGB
     labels::Vector{String}
     plots::Vector{CairoMakie.Figure}

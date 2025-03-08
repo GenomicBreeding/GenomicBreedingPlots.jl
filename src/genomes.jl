@@ -1,13 +1,27 @@
 """
-    plot(
-        type::Type{T},
-        genomes::Genomes;
-        plot_size::Tuple{Int64,Int64} = (600, 450),
-    )::T where {T<:DistributionPlots}
+    plot(type::Type{T}, genomes::Genomes; n_loci_alleles::Int64 = 1_000, seed::Int64 = 42, plot_size::Tuple{Int64,Int64} = (600, 450))::T where {T<:DistributionPlots}
 
-Plot the distribution of allele frequencies from a subset of loci across populations
+Generate a density plot of allele frequencies distribution from genomic data.
 
-# Examples
+# Arguments
+- `type::Type{T}`: The type of plot to generate (must be a subtype of DistributionPlots)
+- `genomes::Genomes`: A Genomes struct containing the genomic data to plot
+- `n_loci_alleles::Int64`: Number of loci to sample for plotting (default: 1000)
+- `seed::Int64`: Random seed for reproducibility (default: 42)
+- `plot_size::Tuple{Int64,Int64}`: Size of the output plot in pixels (width, height) (default: (600, 450))
+
+# Returns
+- `T<:DistributionPlots`: A DistributionPlots object containing the generated plot
+
+# Description
+This function creates a density plot showing the distribution of allele frequencies
+across the sampled loci. It randomly samples a specified number of loci from the
+genomic data and plots their frequency distribution using CairoMakie.
+
+# Throws
+- `ArgumentError`: If the Genomes struct dimensions are invalid or corrupted
+
+# Example
 ```julia
 julia> genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
@@ -52,17 +66,34 @@ function plot(
     out
 end
 
+
 """
-    plot(
-        type::Type{T},
-        genomes::Genomes;
-        plot_size::Tuple{Int64,Int64} = (600, 450),
-        colour_scheme::Symbol = :viridis,
-    )::T where {T<:ViolinPlots}
+    plot(type::Type{T}, genomes::Genomes; kwargs...)::T where {T<:ViolinPlots}
 
-Violin plot of allele frequency distribution (for a subset of loci) per population
+Generate a violin plot visualizing allele frequencies across different populations in genomic data.
 
-# Examples
+# Arguments
+- `type::Type{T}`: The type of plot to generate (must be a subtype of ViolinPlots)
+- `genomes::Genomes`: A Genomes struct containing genomic data and population information
+
+# Keywords
+- `n_loci_alleles::Int64=1_000`: Number of loci alleles to sample for plotting
+- `seed::Int64=42`: Random seed for reproducibility
+- `plot_size::Tuple{Int64,Int64}=(600, 450)`: Size of the output plot in pixels
+- `colour_scheme::Symbol=:viridis`: Color scheme to use for the violin plots
+
+# Returns
+- `::T where {T<:ViolinPlots}`: A ViolinPlots object containing the generated plot
+
+# Description
+Creates a horizontal violin plot showing the distribution of allele frequencies for each population
+in the genomic data. The plot includes population labels with sample sizes and uses different
+colors for each population.
+
+# Throws
+- `ArgumentError`: If the Genomes struct dimensions are invalid or corrupted
+
+# Example
 ```julia
 julia> genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
@@ -142,27 +173,39 @@ function plot(
 end
 
 """
-    plot(
-        type::Type{T},
-        genomes::Genomes;
-        n_loci_alleles::Int64 = 1_000,
-        seed::Int64 = 42,
-        plot_size::Tuple{Int64,Int64} = (600, 450),
-        colour_scheme::Symbol = :viridis,
-        rev_label_colors::Bool = false,
-        n_threshold_to_show_text::Int64 = 1_000,
-    )::T where {T<:CorHeatPlots}
+    plot(type::Type{T}, genomes::Genomes; kwargs...)::T where {T<:CorHeatPlots}
 
-Correlation heatmaps:
-- between loci_alleles across populations
-- between entries across populations
-- between loci_alleles per populations
-- between entries per populations
+Generate correlation heatmap plots for genome data.
 
-Note that we are sample `n_loci_alleles` to use in plotting for computational efficiency. 
-You may use the `seed` parameter for replicability.
+# Arguments
+- `type::Type{T}`: The type of plot to generate (must be a subtype of CorHeatPlots)
+- `genomes::Genomes`: The genome data structure to analyze
 
-# Examples
+# Keywords
+- `n_loci_alleles::Int64 = 1_000`: Maximum number of loci alleles to include in the plot
+- `seed::Int64 = 42`: Random seed for reproducibility
+- `plot_size::Tuple{Int64,Int64} = (600, 450)`: Size of each plot in pixels
+- `colour_scheme::Symbol = :viridis`: Color scheme for the heatmap
+- `rev_label_colors::Bool = false`: If true, reverses the text color threshold for labels
+- `n_threshold_to_show_text::Int64 = 1_000`: Maximum number of cells before text labels are hidden
+
+# Returns
+- `::T`: A CorHeatPlots object containing the generated correlation heatmaps
+
+# Description
+Creates correlation heatmaps showing relationships between:
+- Loci alleles across all populations
+- Entries across all populations
+- Loci alleles within each population
+- Entries within each population
+
+Each heatmap includes correlation values and sample sizes for each pair, with automatic
+text sizing and visibility based on the number of elements being displayed.
+
+# Throws
+- `ArgumentError`: If the Genomes struct dimensions are invalid
+
+# Example
 ```julia
 julia> genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
@@ -263,23 +306,34 @@ function plot(
 end
 
 """
-    plot(
-        type::Type{T},
-        genomes::Genomes;
-        n_loci_alleles::Int64 = 1_000,
-        seed::Int64 = 42,
-        plot_size::Tuple{Int64,Int64} = (600, 450),
-        colour_scheme::Symbol = :tol_muted,
-        horizontal::Bool = true,
-    )::T where {T<:TreePlots}
+    plot(type::Type{T}, genomes::Genomes; kwargs...)::T where {T<:TreePlots}
 
-Plot tree diagrams showing the relationships of each entry using a subset of the allele frequencies.
+Generate hierarchical clustering dendrograms for a Genomes object.
 
-- Distance metric: Euclidean
-- Grouping/linkage: Ward's distance
-- Branch order: Optimal (Bar-Joseph et al, 2001. Bionformatics.)
+# Arguments
+- `type::Type{T}`: The type of plot to generate (must be subtype of TreePlots)
+- `genomes::Genomes`: A Genomes struct containing genetic data
 
-# Examples
+# Keyword Arguments
+- `n_loci_alleles::Int64=1_000`: Number of loci-alleles to sample for plotting
+- `seed::Int64=42`: Random seed for reproducibility
+- `plot_size::Tuple{Int64,Int64}=(600, 450)`: Size of the output plots in pixels
+- `colour_scheme::Symbol=:tol_muted`: Color scheme to use for the dendrograms
+- `horizontal::Bool=true`: If true, plot dendrograms horizontally; if false, vertically
+
+# Returns
+- `TreePlots`: A TreePlots object containing two dendrograms:
+  1. Clustering of loci-alleles based on genotypes
+  2. Clustering of entries (samples) based on genotypes
+
+# Details
+Uses Ward's minimum variance method for hierarchical clustering based on Euclidean distances.
+The dendrograms are colored using the specified color scheme and optimally ordered for visualization.
+
+# Throws
+- `ArgumentError`: If the Genomes struct dimensions are invalid
+
+# Example
 ```julia
 julia> genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
@@ -378,19 +432,40 @@ function plot(
     out
 end
 
-"""
-    plot(
-        type::Type{T},
-        genomes::Genomes;
-        n_loci_alleles::Int64 = 1_000,
-        seed::Int64 = 42,
-        plot_size::Tuple{Int64,Int64} = (600, 450),
-        colour_scheme::Symbol = :tol_muted,
-    )::T where {T<:PCBiPlots}
 
-Using a subset of the allele frequencies, plot the first 2 principal components of the:
-- entries
-- loci-alleles
+"""
+    plot(type::Type{T}, genomes::Genomes; kwargs...)::T where {T<:PCBiPlots}
+
+Generate Principal Component Analysis (PCA) biplots for genomic data.
+
+# Arguments
+- `type::Type{T}`: The type of plot to generate (must be a subtype of PCBiPlots)
+- `genomes::Genomes`: A Genomes struct containing the genomic data to plot
+
+# Keywords
+- `n_loci_alleles::Int64=1_000`: Maximum number of loci-alleles to include in the analysis
+- `seed::Int64=42`: Random seed for reproducibility
+- `plot_size::Tuple{Int64,Int64}=(600, 450)`: Size of the output plots in pixels
+- `colour_scheme::Symbol=:tol_muted`: Color scheme to use for the plots
+
+# Returns
+- `::T where {T<:PCBiPlots}`: A PCBiPlots object containing two plots:
+  1. PCA biplot of entries colored by population
+  2. PCA biplot of loci colored by chromosome
+
+# Details
+The function performs the following operations:
+1. Validates input dimensions
+2. Samples loci-alleles if necessary
+3. Processes allele frequencies matrix
+4. Removes columns with zero variance
+5. Performs PCA and generates two biplots:
+   - One showing the relationship between entries/populations
+   - One showing the relationship between loci/chromosomes
+
+# Throws
+- `ArgumentError`: If the Genomes struct is corrupted
+- `ErrorException`: If the Genomes struct is too sparse
 
 # Examples
 ```julia
