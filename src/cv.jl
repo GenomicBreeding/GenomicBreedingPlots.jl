@@ -11,7 +11,7 @@ Generate bar plots visualizing cross-validation results from genomic prediction 
 - `colour_scheme::Symbol=:viridis`: Color scheme to use for the plots
 
 # Returns
-- `::T`: A BarPlots object containing the generated plots and their labels
+- `BarPlots`: A BarPlots object containing the generated plots and their labels
 
 # Details
 Creates various bar plots showing model performance across:

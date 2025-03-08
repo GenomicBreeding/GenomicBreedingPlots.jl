@@ -208,7 +208,7 @@ across all populations and within individual populations.
 - `n_threshold_to_show_text::Int64`: Maximum number of cells before text labels are hidden
 
 # Returns
-- `::T`: A CorHeatPlots object containing correlation heatmaps for:
+- `CorHeatPlots`: A CorHeatPlots object containing correlation heatmaps for:
   * Traits across all populations
   * Entries across all populations
   * Traits within each population
@@ -470,7 +470,7 @@ Generate Principal Component Analysis (PCA) biplots for phenotypic data.
 - `colour_scheme::Symbol`: Color scheme to use for the plots (default: :tol_muted)
 
 # Returns
-- `::T`: A PCBiPlots object containing two figures:
+- `PCBiPlots`: A PCBiPlots object containing two figures:
     1. PCA biplot of entries colored by population
     2. PCA biplot of traits
 

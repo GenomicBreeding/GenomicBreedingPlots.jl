@@ -83,7 +83,7 @@ Generate a violin plot visualizing allele frequencies across different populatio
 - `colour_scheme::Symbol=:viridis`: Color scheme to use for the violin plots
 
 # Returns
-- `::T where {T<:ViolinPlots}`: A ViolinPlots object containing the generated plot
+- `ViolinPlots`: A ViolinPlots object containing the generated plot
 
 # Description
 Creates a horizontal violin plot showing the distribution of allele frequencies for each population
@@ -190,7 +190,7 @@ Generate correlation heatmap plots for genome data.
 - `n_threshold_to_show_text::Int64 = 1_000`: Maximum number of cells before text labels are hidden
 
 # Returns
-- `::T`: A CorHeatPlots object containing the generated correlation heatmaps
+- `CorHeatPlots`: A CorHeatPlots object containing the generated correlation heatmaps
 
 # Description
 Creates correlation heatmaps showing relationships between:
@@ -449,7 +449,7 @@ Generate Principal Component Analysis (PCA) biplots for genomic data.
 - `colour_scheme::Symbol=:tol_muted`: Color scheme to use for the plots
 
 # Returns
-- `::T where {T<:PCBiPlots}`: A PCBiPlots object containing two plots:
+- `PCBiPlots`: A PCBiPlots object containing two plots:
   1. PCA biplot of entries colored by population
   2. PCA biplot of loci colored by chromosome
 
