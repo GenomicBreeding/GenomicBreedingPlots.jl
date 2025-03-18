@@ -577,7 +577,7 @@ function plot(
             variances_explained = M.prinvars ./ sum(M.prinvars)
             axs = CairoMakie.Axis(
                 fig[1, 1],
-                title = labels[1],
+                title = labels[2],
                 xlabel = string("PC1 (", round(100 * variances_explained[1], digits = 2), "%)"),
                 ylabel = string("PC2 (", round(100 * variances_explained[2], digits = 2), "%)"),
             )
