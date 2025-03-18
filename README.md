@@ -19,8 +19,3 @@ julia --load test/interactive_prelude.jl
 ```shell
 time julia test/cli_tester.jl
 ```
-
-### Docstring conventions
-
-- Structs and main functions with title description, etc including Examples with doctests
-- Methods, i.e. functions with the same names but different input types follow the usual Julia docstring pattern, i.e. the function signature, then some description, then details including parameter description, and finally examples with doctests
