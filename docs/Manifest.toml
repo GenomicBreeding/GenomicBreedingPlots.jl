@@ -64,10 +64,10 @@ version = "2.6.4+3"
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 version = "1.11.0"
 
-[[deps.GBPlots]]
+[[deps.GenomicBreedingPlots]]
 path = ".."
 uuid = "2d71191b-ccd5-4418-88d2-30d4b74b1774"
-version = "1.0.0-DEV"
+version = "0.1"
 
 [[deps.Git]]
 deps = ["Git_jll"]

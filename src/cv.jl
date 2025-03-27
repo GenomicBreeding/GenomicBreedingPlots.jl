@@ -62,7 +62,7 @@ julia> for m in 1:3
             end
         end;
 
-julia> bplots = GBPlots.plot(BarPlots, cvs);
+julia> bplots = GenomicBreedingPlots.plot(BarPlots, cvs);
 
 julia> fnames = saveplots(bplots)
 
@@ -407,7 +407,7 @@ julia> for m in 1:3
             end
         end;
 
-julia> bplots = GBPlots.plot(BoxPlots, cvs);
+julia> bplots = GenomicBreedingPlots.plot(BoxPlots, cvs);
 
 julia> fnames = saveplots(bplots)
 

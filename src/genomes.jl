@@ -23,9 +23,9 @@ genomic data and plots their frequency distribution using CairoMakie.
 
 # Example
 ```julia
-julia> genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
+julia> genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
-julia> dplots = GBPlots.plot(DistributionPlots, genomes);
+julia> dplots = GenomicBreedingPlots.plot(DistributionPlots, genomes);
 
 julia> fnames = saveplots(dplots)
 
@@ -40,7 +40,7 @@ function plot(
     plot_size::Tuple{Int64,Int64} = (600, 450),
 )::T where {T<:DistributionPlots}
     # type = DistributionPlots
-    # genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
+    # genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
     # n_loci_alleles = 1_000; seed = 42; plot_size = (600, 450);
     if !checkdims(genomes)
         throw(ArgumentError("Genomes struct is corrupted."))
@@ -95,13 +95,13 @@ colors for each population.
 
 # Example
 ```julia
-julia> genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
+julia> genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
-julia> trials, _ = GBCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
+julia> trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
 
 julia> genomes = extractgenomes(trials); genomes.phenotypes[1,1] = missing;
 
-julia> vplots = GBPlots.plot(ViolinPlots, genomes);
+julia> vplots = GenomicBreedingPlots.plot(ViolinPlots, genomes);
 
 julia> fnames = saveplots(vplots)
 
@@ -117,7 +117,7 @@ function plot(
     colour_scheme::Symbol = :viridis,
 )::T where {T<:ViolinPlots}
     # type = ViolinPlots
-    # genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
+    # genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
     # n_loci_alleles = 1_000; seed = 42; plot_size = (600, 450); colour_scheme = :viridis;
     if !checkdims(genomes)
         throw(ArgumentError("Genomes struct is corrupted."))
@@ -207,9 +207,9 @@ text sizing and visibility based on the number of elements being displayed.
 
 # Example
 ```julia
-julia> genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
+julia> genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
-julia> hplots = GBPlots.plot(CorHeatPlots, genomes);
+julia> hplots = GenomicBreedingPlots.plot(CorHeatPlots, genomes);
 
 julia> fnames = saveplots(hplots, format="png")
 
@@ -227,7 +227,7 @@ function plot(
     n_threshold_to_show_text::Int64 = 1_000,
 )::T where {T<:CorHeatPlots}
     # type = CorHeatPlots
-    # genomes = GBCore.simulategenomes(n=100, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
+    # genomes = GenomicBreedingCore.simulategenomes(n=100, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
     # seed = 42; n_loci_alleles = 1_000; plot_size = (700, 500); colour_scheme = :viridis; rev_label_colors = false; n_threshold_to_show_text = 1_000
     if !checkdims(genomes)
         throw(ArgumentError("Genomes struct is corrupted."))
@@ -335,9 +335,9 @@ The dendrograms are colored using the specified color scheme and optimally order
 
 # Example
 ```julia
-julia> genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
+julia> genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
-julia> tplots = GBPlots.plot(TreePlots, genomes);
+julia> tplots = GenomicBreedingPlots.plot(TreePlots, genomes);
 
 julia> fnames = saveplots(tplots)
 
@@ -354,7 +354,7 @@ function plot(
     horizontal::Bool = true,
 )::T where {T<:TreePlots}
     # type = TreePlots
-    # genomes = GBCore.simulategenomes(n=100, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
+    # genomes = GenomicBreedingCore.simulategenomes(n=100, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
     # seed = 42; n_loci_alleles = 1_000; plot_size = (700, 500); colour_scheme::Symbol = :tol_muted; horizontal= true
     if !checkdims(genomes)
         throw(ArgumentError("Genomes struct is corrupted."))
@@ -469,9 +469,9 @@ The function performs the following operations:
 
 # Examples
 ```julia
-julia> genomes = GBCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
+julia> genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
-julia> pplots = GBPlots.plot(PCBiPlots, genomes);
+julia> pplots = GenomicBreedingPlots.plot(PCBiPlots, genomes);
 
 julia> fnames = saveplots(pplots)
 
@@ -487,7 +487,7 @@ function plot(
     colour_scheme::Symbol = :tol_muted,
 )::T where {T<:PCBiPlots}
     # type = PCBiPlots
-    # genomes = GBCore.simulategenomes(n=90, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
+    # genomes = GenomicBreedingCore.simulategenomes(n=90, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
     # seed = 42; n_loci_alleles = 1_000; plot_size = (700, 500); colour_scheme::Symbol = :tol_muted;
     if !checkdims(genomes)
         throw(ArgumentError("Genomes struct is corrupted."))

@@ -5,8 +5,8 @@ try
 catch
     nothing
 end
-using GBPlots
-using GBCore
+using GenomicBreedingPlots
+using GenomicBreedingCore
 using StatsBase, MultivariateStats, Distributions, LinearAlgebra
 using DataFrames, Random
 using Distances, Clustering, Measures

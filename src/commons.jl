@@ -1,7 +1,7 @@
 """
     abstract type PlotsGB end
 
-Abstract type representing the base type for various plotting structures in GBPlots.
+Abstract type representing the base type for various plotting structures in GenomicBreedingPlots.
 """
 abstract type PlotsGB end
 
@@ -115,7 +115,7 @@ Check if dimensions of labels and plots match in a PlotsGB object.
 - `Bool`: `true` if the number of labels equals the number of plots, `false` otherwise
 
 """
-function GBCore.checkdims(x::PlotsGB)::Bool
+function GenomicBreedingCore.checkdims(x::PlotsGB)::Bool
     length(x.labels) == length(x.plots)
 end
 
@@ -180,7 +180,7 @@ function saveplots(
     overwrite::Bool = false,
 )::Vector{String}
     # phenomes = Phenomes(n=10, t=3); phenomes.entries = string.("entry_", 1:10); phenomes.populations .= "pop_1"; phenomes.traits = ["A", "B", "C"]; phenomes.phenotypes = rand(10,3);
-    # plots = GBPlots.plot(DistributionPlots, phenomes); idx = [1, 3, 5]; format = "svg"; prefix = ""; use_labels = false;
+    # plots = GenomicBreedingPlots.plot(DistributionPlots, phenomes); idx = [1, 3, 5]; format = "svg"; prefix = ""; use_labels = false;
     # Check arguments
     if !checkdims(plots)
         throw(ArgumentError("The plots::DistributionPlots is corrupted."))

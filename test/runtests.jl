@@ -1,16 +1,16 @@
-using GBPlots
-using GBCore
+using GenomicBreedingPlots
+using GenomicBreedingCore
 using StatsBase
 using Test
 using Documenter
 
-Documenter.doctest(GBPlots)
+Documenter.doctest(GenomicBreedingPlots)
 
-@testset "GBPlots.jl" begin
+@testset "GenomicBreedingPlots.jl" begin
     # Phenomes
-    genomes = GBCore.simulategenomes(n = 300, l = 1_000, verbose = false)
+    genomes = GenomicBreedingCore.simulategenomes(n = 300, l = 1_000, verbose = false)
     genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace = true)
-    trials, _ = GBCore.simulatetrials(
+    trials, _ = GenomicBreedingCore.simulatetrials(
         genomes = genomes,
         n_years = 2,
         n_seasons = 1,
@@ -26,7 +26,7 @@ Documenter.doctest(GBPlots)
     for plot_type in plot_types
         # plot_type = PCBiPlots
         println(string("Genomes: ", plot_type))
-        plots = GBPlots.plot(plot_type, genomes)
+        plots = GenomicBreedingPlots.plot(plot_type, genomes)
         fnames = saveplots(plots)
         @test length(fnames) == length(plots.plots)
         rm.(fnames)
@@ -36,7 +36,7 @@ Documenter.doctest(GBPlots)
         println(string("Phenomes: ", plot_type))
         phenomes_2_traits = slice(phenomes, idx_traits = [1, 2])
         for Φ in [phenomes, phenomes_2_traits]
-            plots = GBPlots.plot(plot_type, Φ)
+            plots = GenomicBreedingPlots.plot(plot_type, Φ)
             fnames = saveplots(plots)
             @test length(fnames) == length(plots.plots)
             rm.(fnames)
@@ -79,7 +79,7 @@ Documenter.doctest(GBPlots)
     end
     for plot_type in [BarPlots, BoxPlots]
         println(string("Vector{CV}: ", plot_type))
-        plots = GBPlots.plot(plot_type, cvs)
+        plots = GenomicBreedingPlots.plot(plot_type, cvs)
         fnames = saveplots(plots)
         @test length(fnames) == length(plots.plots)
         rm.(fnames)

@@ -1,6 +1,6 @@
-module GBPlots
+module GenomicBreedingPlots
 
-using GBCore
+using GenomicBreedingCore
 using StatsBase, MultivariateStats, Distributions, LinearAlgebra
 using DataFrames, Random
 using Distances, Clustering, Measures
