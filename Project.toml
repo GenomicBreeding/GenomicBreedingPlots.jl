@@ -1,7 +1,7 @@
 name = "GenomicBreedingPlots"
 uuid = "2d71191b-ccd5-4418-88d2-30d4b74b1774"
 authors = ["jeffersonparil@gmail.com"]
-version = "0.1"
+version = "0.1.0"
 
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
@@ -29,7 +29,7 @@ DataFrames = "1.7.0"
 Distances = "0.10.12"
 Distributions = "0.25.116"
 Documenter = "1.8.0"
-GenomicBreedingCore = "1.0.0"
+GenomicBreedingCore = "0.1.0"
 LinearAlgebra = "1.11.0"
 Measures = "0.3.2"
 MultivariateStats = "0.10.3"

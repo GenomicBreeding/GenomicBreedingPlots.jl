@@ -67,7 +67,7 @@ version = "1.11.0"
 [[deps.GenomicBreedingPlots]]
 path = ".."
 uuid = "2d71191b-ccd5-4418-88d2-30d4b74b1774"
-version = "0.1"
+version = "0.1.0"
 
 [[deps.Git]]
 deps = ["Git_jll"]
