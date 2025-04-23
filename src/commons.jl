@@ -183,7 +183,7 @@ function saveplots(
     # plots = GenomicBreedingPlots.plot(DistributionPlots, phenomes); idx = [1, 3, 5]; format = "svg"; prefix = ""; use_labels = false;
     # Check arguments
     if !checkdims(plots)
-        throw(ArgumentError("The plots::DistributionPlots is corrupted."))
+        throw(ArgumentError("The plots::DistributionPlots is corrupted ☹."))
     end
     if idx == [0]
         idx = collect(1:length(plots.labels))

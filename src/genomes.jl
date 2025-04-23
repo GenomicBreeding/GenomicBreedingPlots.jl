@@ -43,7 +43,7 @@ function plot(
     # genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
     # n_loci_alleles = 1_000; seed = 42; plot_size = (600, 450);
     if !checkdims(genomes)
-        throw(ArgumentError("Genomes struct is corrupted."))
+        throw(ArgumentError("Genomes struct is corrupted ☹."))
     end
     rng::TaskLocalRNG = Random.seed!(seed)
     n, p = size(genomes.allele_frequencies)
@@ -120,7 +120,7 @@ function plot(
     # genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
     # n_loci_alleles = 1_000; seed = 42; plot_size = (600, 450); colour_scheme = :viridis;
     if !checkdims(genomes)
-        throw(ArgumentError("Genomes struct is corrupted."))
+        throw(ArgumentError("Genomes struct is corrupted ☹."))
     end
     rng::TaskLocalRNG = Random.seed!(seed)
     n, p = size(genomes.allele_frequencies)
@@ -230,7 +230,7 @@ function plot(
     # genomes = GenomicBreedingCore.simulategenomes(n=100, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
     # seed = 42; n_loci_alleles = 1_000; plot_size = (700, 500); colour_scheme = :viridis; rev_label_colors = false; n_threshold_to_show_text = 1_000
     if !checkdims(genomes)
-        throw(ArgumentError("Genomes struct is corrupted."))
+        throw(ArgumentError("Genomes struct is corrupted ☹."))
     end
     rng::TaskLocalRNG = Random.seed!(seed)
     n, p = size(genomes.allele_frequencies)
@@ -357,7 +357,7 @@ function plot(
     # genomes = GenomicBreedingCore.simulategenomes(n=100, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
     # seed = 42; n_loci_alleles = 1_000; plot_size = (700, 500); colour_scheme::Symbol = :tol_muted; horizontal= true
     if !checkdims(genomes)
-        throw(ArgumentError("Genomes struct is corrupted."))
+        throw(ArgumentError("Genomes struct is corrupted ☹."))
     end
     rng::TaskLocalRNG = Random.seed!(seed)
     n, p = size(genomes.allele_frequencies)
@@ -490,7 +490,7 @@ function plot(
     # genomes = GenomicBreedingCore.simulategenomes(n=90, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
     # seed = 42; n_loci_alleles = 1_000; plot_size = (700, 500); colour_scheme::Symbol = :tol_muted;
     if !checkdims(genomes)
-        throw(ArgumentError("Genomes struct is corrupted."))
+        throw(ArgumentError("Genomes struct is corrupted ☹."))
     end
     rng::TaskLocalRNG = Random.seed!(seed)
     n, p = size(genomes.allele_frequencies)

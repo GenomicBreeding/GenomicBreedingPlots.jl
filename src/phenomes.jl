@@ -45,7 +45,7 @@ function plot(
     # trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
     # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing
     if !checkdims(phenomes)
-        throw(ArgumentError("Phenomes struct is corrupted."))
+        throw(ArgumentError("Phenomes struct is corrupted ☹."))
     end
     traits::Vector{String} = sort(unique(phenomes.traits))
     labels = Vector{String}(undef, length(traits))
@@ -126,7 +126,7 @@ function plot(
     # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing
     # plot_size = (600, 450); colour_scheme = :viridis;
     if !checkdims(phenomes)
-        throw(ArgumentError("Phenomes struct is corrupted."))
+        throw(ArgumentError("Phenomes struct is corrupted ☹."))
     end
     traits::Vector{String} = sort(unique(phenomes.traits))
     populations::Vector{String} = sort(unique(phenomes.populations))
@@ -252,7 +252,7 @@ function plot(
     # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing
     # plot_size = (700, 500); colour_scheme = :viridis; rev_label_colors = false; n_threshold_to_show_text = 1_000
     if !checkdims(phenomes)
-        throw(ArgumentError("Phenomes struct is corrupted."))
+        throw(ArgumentError("Phenomes struct is corrupted ☹."))
     end
     traits::Vector{String} = sort(unique(phenomes.traits))
     populations::Vector{String} = sort(unique(phenomes.populations))
@@ -387,7 +387,7 @@ function plot(
     # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
     # plot_size = (700, 500); colour_scheme = :tol_light; horizontal = true; standardise_traits = true;
     if !checkdims(phenomes)
-        throw(ArgumentError("Phenomes struct is corrupted."))
+        throw(ArgumentError("Phenomes struct is corrupted ☹."))
     end
     traits::Vector{String} = sort(unique(phenomes.traits))
     populations::Vector{String} = sort(unique(phenomes.populations))
@@ -509,7 +509,7 @@ function plot(
     # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
     # plot_size = (700, 500); colour_scheme::Symbol = :tol_muted;
     if !checkdims(phenomes)
-        throw(ArgumentError("Phenomes struct is corrupted."))
+        throw(ArgumentError("Phenomes struct is corrupted ☹."))
     end
     populations::Vector{String} = sort(unique(phenomes.populations))
     traits::Vector{String} = sort(phenomes.traits)

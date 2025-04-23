@@ -111,7 +111,7 @@ function plot(
     # Check arguments
     for (i, cv) in enumerate(cvs)
         if !checkdims(cv)
-            throw(ArgumentError("The element number " * string(i) * " in the vector of CV structs is corrupted."))
+            throw(ArgumentError("The element number " * string(i) * " in the vector of CV structs is corrupted ☹."))
         end
     end
     valid_metrics = string.(keys(cvs[1].fit.metrics))
@@ -456,7 +456,7 @@ function plot(
     # Check arguments
     for (i, cv) in enumerate(cvs)
         if !checkdims(cv)
-            throw(ArgumentError("The element number " * string(i) * " in the vector of CV structs is corrupted."))
+            throw(ArgumentError("The element number " * string(i) * " in the vector of CV structs is corrupted ☹."))
         end
     end
     valid_metrics = string.(keys(cvs[1].fit.metrics))
