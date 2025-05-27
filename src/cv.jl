@@ -153,10 +153,13 @@ function plot(
             z_names = ["model", "trait"]
             (df_metrics, x_names, z_names)
         end
+        if nrow(df_metrics) == 0
+            continue
+        end
         for x_name in x_names
-            # x_name = x_names[2]
+            # x_name = x_names[1]
             for z_name in z_names
-                # z_name = z_names[end]
+                # z_name = z_names[3]
                 if x_name == z_name
                     continue
                 end
@@ -243,8 +246,8 @@ function plot(
                     y = df[!, string(metric, "_mean")]
                     y_std = df[!, string(metric, "_std")]
                     n = length(x_levels) * length(z_levels)
-                    font_size_labels = minimum([14, 20 / (0.1 * n)])
-                    font_size_legend = minimum([14, 20 / (0.1 * length(z_levels))])
+                    font_size_labels = Int64(ceil(minimum([14, 20 / (0.1 * n)])))
+                    font_size_legend = Int64(ceil(minimum([14, 20 / (0.1 * length(z_levels))])))
                     title, label = if isnothing(w_level)
                         across_names = x_names[[sum([x_name, z_name] .== a) == 0 for a in x_names]]
                         title = string("Across ", across_names[1], " and ", across_names[2])
