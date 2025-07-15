@@ -23,7 +23,7 @@ rev = "main"
 url = "https://github.com/GenomicBreeding/GenomicBreedingCore.jl"
 
 [compat]
-CairoMakie = "0.13.1, 0.14"
+CairoMakie = "0.13.1, 0.15"
 Clustering = "0.15.8"
 ColorSchemes = "3.27.1"
 DataFrames = "1.7.0"
