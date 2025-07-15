@@ -121,7 +121,7 @@ function plot(
     colour_scheme::Symbol = :viridis,
 )::T where {T<:ViolinPlots}
     # type = ViolinPlots
-    # genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
+    # genomes = GenomicBreedingCore.simulategenomes(n=300, l=1_000, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
     # trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
     # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing
     # plot_size = (600, 450); colour_scheme = :viridis;
@@ -144,7 +144,9 @@ function plot(
         df_reshaped.popid_colors =
             [colours[findall(reverse(populations) .== pop)[1]] for pop in df_reshaped.populations]
         idx = findall(.!ismissing.(df_reshaped.y) .&& .!isnan.(df_reshaped.y) .&& .!isinf.(df_reshaped.y))
-        df_reshaped[idx, :]
+        df_reshaped = df_reshaped[idx, :]
+        df_reshaped[!, :y] = Float64.(df_reshaped.y)
+        df_reshaped
     end
     for (i, trait) in enumerate(traits)
         # i = 1; trait = traits[i]
