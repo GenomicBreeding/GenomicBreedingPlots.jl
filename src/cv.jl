@@ -64,7 +64,7 @@ julia> for m in 1:3
 
 julia> bplots = GenomicBreedingPlots.plot(BarPlots, cvs);
 
-julia> fnames = saveplots(bplots)
+julia> fnames = saveplots(bplots, overwrite=true)
 
 julia> rm.(fnames);
 ```
@@ -203,7 +203,13 @@ function plot(
                     df, z_levels, z, colours = if z_name == "bulk"
                         df = combine(
                             groupby(df_metrics_sub, Symbol(x_name)),
-                            [Symbol(metric) => mean, Symbol(metric) => std],
+                            [
+                                Symbol(metric) => mean, 
+                                Symbol(metric) => std,
+                                :training_size => mean => "nt",
+                                :validation_size => mean => "nv",
+                                :replication => length => "nrf",
+                            ],
                         )
                         if nrow(df) == 0
                             continue
@@ -217,7 +223,13 @@ function plot(
                     else
                         df = combine(
                             groupby(df_metrics_sub, [Symbol(x_name), Symbol(z_name)]),
-                            [Symbol(metric) => mean, Symbol(metric) => std],
+                            [
+                                Symbol(metric) => mean, 
+                                Symbol(metric) => std,
+                                :training_size => mean => "nt",
+                                :validation_size => mean => "nv",
+                                :replication => length => "nrf",
+                            ],
                         )
                         if nrow(df) == 0
                             continue
@@ -246,7 +258,7 @@ function plot(
                     y = df[!, string(metric, "_mean")]
                     y_std = df[!, string(metric, "_std")]
                     n = length(x_levels) * length(z_levels)
-                    font_size_labels = Int64(ceil(minimum([14, 20 / (0.1 * n)])))
+                    font_size_labels = Int64(ceil(minimum([7, 10 / (0.1 * n)])))
                     font_size_legend = Int64(ceil(minimum([14, 20 / (0.1 * length(z_levels))])))
                     title, label = if isnothing(w_level)
                         across_names = x_names[[sum([x_name, z_name] .== a) == 0 for a in x_names]]
@@ -301,7 +313,7 @@ function plot(
                         title = title,
                         xlabel = "GEBV Accuracy",
                         ylabel = x_name,
-                        yticklabelsize = font_size_labels,
+                        yticklabelsize = 2*font_size_labels,
                         limits = (x_limits, nothing),
                         yticks = (1:length(x_levels), x_levels),
                         yreversed = true,
@@ -317,11 +329,24 @@ function plot(
                         bar_labels = collect(1:length(y)),
                         label_formatter = i ->
                             !isnan(y_std[i]) ?
-                            string(round(y[i], digits = 2), " (±", round(y_std[i], digits = 2), ")") :
-                            string(round(y[i], digits = 2)),
+                            string(round(y[i], digits = 2), " (±", round(y_std[i], digits = 2), ";\nnt=",
+                                    string(Int(round(df[!, "nt"][i]))), "; nv=",
+                                    string(Int(round(df[!, "nv"][i]))), "; nrf=",
+                                    string(Int(round(df[!, "nrf"][i]))), ")") :
+                            string(round(y[i], digits = 2), "\n(nt=",
+                                    string(Int(round(df[!, "nt"][i]))), "; nv=",
+                                    string(Int(round(df[!, "nv"][i]))), "; nrf=",
+                                    string(Int(round(df[!, "nrf"][i]))), ")"),
                         label_size = font_size_labels,
                         label = [label => (; color = i) for (i, label) in enumerate(z_levels)],
                         direction = :x,
+                    )
+                    hideydecorations!(ticklabels=false, label=false)
+                    CairoMakie.hlines!(
+                        axs,
+                        vcat(0.5, collect(1:length(x_levels)) .+ 0.5),
+                        color=:gray,
+                        linestyle=:dash
                     )
                     if length(z) > 1
                         CairoMakie.Legend(fig[1, 2], axs, labelsize = font_size_legend)
