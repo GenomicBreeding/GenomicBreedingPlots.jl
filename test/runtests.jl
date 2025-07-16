@@ -27,9 +27,8 @@ Documenter.doctest(GenomicBreedingPlots)
         # plot_type = PCBiPlots
         println(string("Genomes: ", plot_type))
         plots = GenomicBreedingPlots.plot(plot_type, genomes)
-        fnames = saveplots(plots)
+        fnames = saveplots(plots, overwrite = true)
         @test length(fnames) == length(plots.plots)
-        rm.(fnames)
     end
     # Phenomes
     for plot_type in plot_types
@@ -37,9 +36,8 @@ Documenter.doctest(GenomicBreedingPlots)
         phenomes_2_traits = slice(phenomes, idx_traits = [1, 2])
         for Φ in [phenomes, phenomes_2_traits]
             plots = GenomicBreedingPlots.plot(plot_type, Φ)
-            fnames = saveplots(plots)
+            fnames = saveplots(plots, overwrite = true)
             @test length(fnames) == length(plots.plots)
-            rm.(fnames)
         end
     end
     # CV
@@ -80,8 +78,7 @@ Documenter.doctest(GenomicBreedingPlots)
     for plot_type in [BarPlots, BoxPlots]
         println(string("Vector{CV}: ", plot_type))
         plots = GenomicBreedingPlots.plot(plot_type, cvs)
-        fnames = saveplots(plots)
+        fnames = saveplots(plots, overwrite = true)
         @test length(fnames) == length(plots.plots)
-        rm.(fnames)
     end
 end
