@@ -69,7 +69,7 @@ julia> fnames = saveplots(bplots, overwrite=true)
 julia> rm.(fnames);
 ```
 """
-function plot(
+function GenomicBreedingPlots.plot(
     type::Type{T},
     cvs::Vector{CV};
     metric::String = "cor",
@@ -300,12 +300,16 @@ function plot(
                         )
                     end
                     # Plot
+                    δ = 0.25 * (maximum(y) - minimum(vcat(0.0, y)))
                     x_limits = if (minimum(y) < 0.0) && (maximum(y) < 0.0)
-                        (1.5 * minimum(y), 0.5)
+                        # (1.5 * minimum(y), 0.5)
+                        (minimum(y) - δ, 0.0)
                     elseif (minimum(y) < 0.0) && (maximum(y) >= 0.0)
-                        (2.0 * minimum(y), 1.5 * maximum(y))
+                        # (2.0 * minimum(y), 1.5 * maximum(y))
+                        (minimum(y) - δ, maximum(y) + δ)
                     else
-                        (0.0, 1.5 * maximum(y))
+                        # (0.0, 1.5 * maximum(y))
+                        (0.0, maximum(y) + δ)
                     end
                     fig = CairoMakie.Figure(size = plot_size)
                     axs = CairoMakie.Axis(
@@ -337,7 +341,7 @@ function plot(
                                 string(Int(round(df[!, "nt"][i]))),
                                 "; nv=",
                                 string(Int(round(df[!, "nv"][i]))),
-                                "; nrf=",
+                                ";\nnrf=",
                                 string(Int(round(df[!, "nrf"][i]))),
                                 ")",
                             ) :
@@ -347,7 +351,7 @@ function plot(
                                 string(Int(round(df[!, "nt"][i]))),
                                 "; nv=",
                                 string(Int(round(df[!, "nv"][i]))),
-                                "; nrf=",
+                                ";\nnrf=",
                                 string(Int(round(df[!, "nrf"][i]))),
                                 ")",
                             ),

@@ -1141,7 +1141,7 @@ version = "0.2.0"
 
 [[deps.GenomicBreedingCore]]
 deps = ["Bijectors", "CUDA", "CovarianceEstimation", "DataFrames", "Distances", "Distributions", "Documenter", "JLD2", "LinearAlgebra", "Lux", "LuxCUDA", "MCMCDiagnosticTools", "MixedModels", "MultivariateStats", "Optimisers", "PDMats", "ProgressMeter", "RDatasets", "Random", "ReverseDiff", "SparseArrays", "Statistics", "StatsBase", "StatsModels", "Suppressor", "Turing", "UnicodePlots", "Zygote"]
-git-tree-sha1 = "c2a5d7513c74ab81469bdc5c122988995d87bb4c"
+git-tree-sha1 = "0f4f97948ab5e1715eb158ea3e9916ffe80069a9"
 repo-rev = "main"
 repo-url = "https://github.com/GenomicBreeding/GenomicBreedingCore.jl"
 uuid = "50d95318-1838-4cfa-a614-3543b4bb0509"
@@ -2657,9 +2657,9 @@ version = "3.0.0"
 
 [[deps.ScopedValues]]
 deps = ["HashArrayMappedTries", "Logging"]
-git-tree-sha1 = "1147f140b4c8ddab224c94efa9569fc23d63ab44"
+git-tree-sha1 = "7f44eef6b1d284465fafc66baf4d9bdcc239a15b"
 uuid = "7e506255-f358-4e82-b7e4-beb19740aa63"
-version = "1.3.0"
+version = "1.4.0"
 
 [[deps.Scratch]]
 deps = ["Dates"]
@@ -2826,9 +2826,9 @@ weakdeps = ["OffsetArrays", "StaticArrays"]
 
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
-git-tree-sha1 = "0feb6b9031bd5c51f9072393eb5ab3efd31bf9e4"
+git-tree-sha1 = "cbea8a6bd7bed51b1619658dec70035e07b8502f"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.9.13"
+version = "1.9.14"
 weakdeps = ["ChainRulesCore", "Statistics"]
 
     [deps.StaticArrays.extensions]
