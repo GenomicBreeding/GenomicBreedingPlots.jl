@@ -520,9 +520,10 @@ function plot(
         colours = [findall(populations .== pop)[1] for pop in genomes.populations]
         fig = CairoMakie.Figure(size = plot_size)
         plt = if size(G, 2) > 2
-            M = fit(PCA, G)
-            pc1 = M.proj[:, 1]
-            pc2 = M.proj[:, 2]
+            M = fit(PCA, G')
+            Y = predict(M, G')
+            pc1 = Y[1, :]
+            pc2 = Y[2, :]
             variances_explained = M.prinvars ./ sum(M.prinvars)
             axs = CairoMakie.Axis(
                 fig[1, 1],
