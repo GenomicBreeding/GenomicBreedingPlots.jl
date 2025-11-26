@@ -2,7 +2,7 @@
 
 julia_version = "1.12.2"
 manifest_format = "2.0"
-project_hash = "483cd275d232288bb12490d2a74814f7944346f9"
+project_hash = "095c2e963985c03633dfd0a8ea310d021736f3eb"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "8be2ae325471fc20b11c27bb34b518541d07dd3a"
@@ -900,7 +900,7 @@ uuid = "50d95318-1838-4cfa-a614-3543b4bb0509"
 version = "0.1.1"
 
 [[deps.GenomicBreedingPlots]]
-deps = ["CairoMakie", "Clustering", "ColorSchemes", "DataFrames", "Distances", "Distributions", "Documenter", "GenomicBreedingCore", "LinearAlgebra", "Measures", "MultivariateStats", "Random", "StatsBase"]
+deps = ["CairoMakie", "Clustering", "ColorSchemes", "DataFrames", "Distances", "Distributions", "Documenter", "GenomicBreedingCore", "LibGit2", "LibGit2_jll", "LibSSH2_jll", "LinearAlgebra", "Measures", "MultivariateStats", "OpenSSL_jll", "Random", "StatsBase"]
 path = "."
 uuid = "2d71191b-ccd5-4418-88d2-30d4b74b1774"
 version = "0.1.1"
