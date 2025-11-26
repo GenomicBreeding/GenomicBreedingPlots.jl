@@ -1,7 +1,7 @@
 name = "GenomicBreedingPlots"
 uuid = "2d71191b-ccd5-4418-88d2-30d4b74b1774"
-authors = ["jeffersonparil@gmail.com"]
 version = "0.1.1"
+authors = ["jeffersonparil@gmail.com"]
 
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
@@ -15,12 +15,12 @@ GenomicBreedingCore = "50d95318-1838-4cfa-a614-3543b4bb0509"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Measures = "442fdcdd-2543-5da2-b0f3-8c86c306513e"
 MultivariateStats = "6f286f6a-111f-5878-ab1e-185364afe411"
+OpenSSL_jll = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
-[sources.GenomicBreedingCore]
-rev = "main"
-url = "https://github.com/GenomicBreeding/GenomicBreedingCore.jl"
+[sources]
+GenomicBreedingCore = {rev = "main", url = "https://github.com/GenomicBreeding/GenomicBreedingCore.jl"}
 
 [compat]
 CairoMakie = "0.13.1, 0.15"
@@ -34,6 +34,7 @@ GenomicBreedingCore = "0.1.0"
 LinearAlgebra = "1.11.0"
 Measures = "0.3.2"
 MultivariateStats = "0.10.3"
+OpenSSL_jll = "3.5.4"
 Random = "1.11.0"
 StatsBase = "0.34.4"
 julia = "1.12"
