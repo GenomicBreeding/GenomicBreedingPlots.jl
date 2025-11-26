@@ -1,7 +1,7 @@
 name = "GenomicBreedingPlots"
 uuid = "2d71191b-ccd5-4418-88d2-30d4b74b1774"
 authors = ["jeffersonparil@gmail.com"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
@@ -36,7 +36,7 @@ Measures = "0.3.2"
 MultivariateStats = "0.10.3"
 Random = "1.11.0"
 StatsBase = "0.34.4"
-julia = "1.11"
+julia = "1.12"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
