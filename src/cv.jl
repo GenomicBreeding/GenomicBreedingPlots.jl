@@ -174,7 +174,7 @@ function GenomicBreedingPlots.plot(
                     (w_name, w_levels)
                 else
                     # Across populations CV
-                    w_name = ("training_population", z_names[z_names.!=z_name][1])
+                    w_name = ("training_population", z_names[z_names .!= z_name][1])
                     w_levels = []
                     for pop in sort(unique(df_metrics[!, Symbol(w_name[1])]))
                         for trait_or_model in sort(unique(df_metrics[!, Symbol(w_name[2])]))
@@ -191,7 +191,8 @@ function GenomicBreedingPlots.plot(
                         df_metrics
                     else
                         idx = if typeof(w_name) == Tuple{String,String}
-                            findall((df_metrics[:, w_name[1]] .== w_level[1]) .&& (df_metrics[:, w_name[2]] .== w_level[2]))
+                            findall((df_metrics[:, w_name[1]] .== w_level[1]) .&&
+                                    (df_metrics[:, w_name[2]] .== w_level[2]))
                         else
                             findall(df_metrics[:, w_name] .== w_level)
                         end
@@ -562,7 +563,7 @@ function plot(
                     (w_name, w_levels)
                 else
                     # Across populations CV
-                    w_name = ("training_population", z_names[z_names.!=z_name][1])
+                    w_name = ("training_population", z_names[z_names .!= z_name][1])
                     w_levels = []
                     for pop in sort(unique(df_metrics[!, Symbol(w_name[1])]))
                         for trait_or_model in sort(unique(df_metrics[!, Symbol(w_name[2])]))
@@ -580,7 +581,8 @@ function plot(
                         df_metrics
                     else
                         idx = if typeof(w_name) == Tuple{String,String}
-                            findall((df_metrics[:, w_name[1]] .== w_level[1]) .&& (df_metrics[:, w_name[2]] .== w_level[2]))
+                            findall((df_metrics[:, w_name[1]] .== w_level[1]) .&&
+                                    (df_metrics[:, w_name[2]] .== w_level[2]))
                         else
                             findall(df_metrics[:, w_name] .== w_level)
                         end
