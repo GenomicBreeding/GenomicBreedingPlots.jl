@@ -1,6 +1,6 @@
 name = "GenomicBreedingPlots"
 uuid = "2d71191b-ccd5-4418-88d2-30d4b74b1774"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["jeffersonparil@gmail.com"]
 
 [deps]
@@ -33,7 +33,7 @@ DataFrames = "1.7.0"
 Distances = "0.10.12"
 Distributions = "0.25.116"
 Documenter = "1.8.0"
-GenomicBreedingCore = "0.1.0"
+GenomicBreedingCore = "0.2.0"
 LibGit2 = "1.11.0"
 LibGit2_jll = "1.9.0"
 LibSSH2_jll = "1.11.3"
