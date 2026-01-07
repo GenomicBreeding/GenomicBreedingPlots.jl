@@ -19,23 +19,3 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [sources]
 GenomicBreedingCore = {rev = "main", url = "https://github.com/GenomicBreeding/GenomicBreedingCore.jl"}
-
-[compat]
-CairoMakie = "0.13.1, 0.15"
-Clustering = "0.15.8"
-ColorSchemes = "3.27.1"
-DataFrames = "1.7.0"
-Distances = "0.10.12"
-Distributions = "0.25.116"
-Documenter = "1.8.0"
-GenomicBreedingCore = "0.1.0"
-LibGit2 = "1.11.0"
-LibGit2_jll = "1.9.0"
-LibSSH2_jll = "1.11.3"
-LinearAlgebra = "1.11.0"
-Measures = "0.3.2"
-MultivariateStats = "0.10.3"
-OpenSSL_jll = "3.5.4"
-Random = "1.11.0"
-StatsBase = "0.34.4"
-julia = "1.12"
