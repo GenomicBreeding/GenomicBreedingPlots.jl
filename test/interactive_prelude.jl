@@ -1,10 +1,10 @@
 using Pkg
 Pkg.activate(".")
-try
-    Pkg.update()
-catch
-    nothing
-end
+# try
+#     Pkg.update()
+# catch
+#     nothing
+# end
 using GenomicBreedingPlots
 using GenomicBreedingCore
 using StatsBase, MultivariateStats, Distributions, LinearAlgebra
