@@ -14,7 +14,7 @@ Documenter.doctest(GenomicBreedingPlots)
         genomes = genomes,
         n_years = 2,
         n_seasons = 1,
-        n_harvests = 1,
+        n_measurements = 1,
         n_sites = 1,
         n_replications = 1,
         verbose = false,

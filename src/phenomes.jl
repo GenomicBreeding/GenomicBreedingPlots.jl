@@ -24,7 +24,7 @@ the number of observations in its title.
 ```julia
 julia> genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
-julia> trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
+julia> trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_measurements=1, n_sites=1, n_replications=1, verbose=false);
 
 julia> phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
 
@@ -42,7 +42,7 @@ function plot(
 )::T where {T<:DistributionPlots}
     # type = DistributionPlots
     # genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
-    # trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
+    # trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_measurements=1, n_sites=1, n_replications=1, verbose=false);
     # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing
     if !checkdims(phenomes)
         throw(ArgumentError("Phenomes struct is corrupted ☹."))
@@ -103,7 +103,7 @@ Missing, NaN, and infinite values are automatically filtered out.
 ```julia
 julia> genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
-julia> trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
+julia> trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_measurements=1, n_sites=1, n_replications=1, verbose=false);
 
 julia> phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
 
@@ -122,7 +122,7 @@ function plot(
 )::T where {T<:ViolinPlots}
     # type = ViolinPlots
     # genomes = GenomicBreedingCore.simulategenomes(n=300, l=1_000, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
-    # trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
+    # trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_measurements=1, n_sites=1, n_replications=1, verbose=false);
     # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing
     # plot_size = (600, 450); colour_scheme = :viridis;
     if !checkdims(phenomes)
@@ -229,7 +229,7 @@ across all populations and within individual populations.
 ```julia
 julia> genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
-julia> trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
+julia> trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_measurements=1, n_sites=1, n_replications=1, verbose=false);
 
 julia> phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
 
@@ -250,7 +250,7 @@ function plot(
 )::T where {T<:CorHeatPlots}
     # type = CorHeatPlots
     # genomes = GenomicBreedingCore.simulategenomes(n=100, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
-    # trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
+    # trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_measurements=1, n_sites=1, n_replications=1, verbose=false);
     # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing
     # plot_size = (700, 500); colour_scheme = :viridis; rev_label_colors = false; n_threshold_to_show_text = 1_000
     if !checkdims(phenomes)
@@ -364,7 +364,7 @@ The function performs the following operations:
 ```julia
 julia> genomes = GenomicBreedingCore.simulategenomes(n=300, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
 
-julia> trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
+julia> trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_measurements=1, n_sites=1, n_replications=1, verbose=false);
 
 julia> phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
 
@@ -385,7 +385,7 @@ function plot(
 )::T where {T<:TreePlots}
     # type = TreePlots
     # genomes = GenomicBreedingCore.simulategenomes(n=100, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
-    # trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
+    # trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=1, n_seasons=1, n_measurements=1, n_sites=1, n_replications=1, verbose=false);
     # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
     # plot_size = (700, 500); colour_scheme = :tol_light; horizontal = true; standardise_traits = true;
     if !checkdims(phenomes)
@@ -507,7 +507,7 @@ function plot(
 )::T where {T<:PCBiPlots}
     # type = PCBiPlots
     # genomes = GenomicBreedingCore.simulategenomes(n=90, l=100, verbose=false); genomes.populations = StatsBase.sample(string.("pop_", 1:3), length(genomes.entries), replace=true);
-    # trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=2, n_seasons=2, n_harvests=1, n_sites=1, n_replications=1, verbose=false);
+    # trials, _ = GenomicBreedingCore.simulatetrials(genomes=genomes, n_years=2, n_seasons=2, n_measurements=1, n_sites=1, n_replications=1, verbose=false);
     # phenomes = extractphenomes(trials); phenomes.phenotypes[1,1] = missing;
     # plot_size = (700, 500); colour_scheme::Symbol = :tol_muted;
     if !checkdims(phenomes)
