@@ -1,6 +1,6 @@
 name = "GenomicBreedingPlots"
 uuid = "2d71191b-ccd5-4418-88d2-30d4b74b1774"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["jeffersonparil@gmail.com"]
 
 [deps]
