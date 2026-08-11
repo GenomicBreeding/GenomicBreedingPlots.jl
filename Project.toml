@@ -1,6 +1,6 @@
 name = "GenomicBreedingPlots"
 uuid = "2d71191b-ccd5-4418-88d2-30d4b74b1774"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["jeffersonparil@gmail.com"]
 
 [deps]
@@ -12,6 +12,7 @@ Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 GenomicBreedingCore = "50d95318-1838-4cfa-a614-3543b4bb0509"
+JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
 LibGit2 = "76f85450-5226-5b5a-8eaa-529ad045b433"
 LibGit2_jll = "e37daf67-58a4-590a-8e99-b0245dd2ffc5"
 LibSSH2_jll = "29816b5a-b9ab-546f-933c-edad1886dfa8"
@@ -34,6 +35,7 @@ Distances = "0.10.12"
 Distributions = "0.25.116"
 Documenter = "1.8.0"
 GenomicBreedingCore = "0.2.0"
+JuliaFormatter = "2.12.4"
 LibGit2 = "1.11.0"
 LibGit2_jll = "1.9.0"
 LibSSH2_jll = "1.11.3"

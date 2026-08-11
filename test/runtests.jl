@@ -76,6 +76,7 @@ Documenter.doctest(GenomicBreedingPlots)
         end
     end
     for plot_type in [BarPlots, BoxPlots]
+        # plot_type = BarPlots
         println(string("Vector{CV}: ", plot_type))
         plots = GenomicBreedingPlots.plot(plot_type, cvs)
         fnames = saveplots(plots, overwrite = true)
