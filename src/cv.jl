@@ -138,8 +138,7 @@ function GenomicBreedingPlots.plot(
         df_metrics, x_names, z_names = if cv_type == "Within population"
             # Within population CV results
             idx = findall(
-                isnothing.(match.(Regex(";"), df_metrics_all.training_population)) .&&
-                df_metrics_all.training_population .== df_metrics_all.validation_population,
+                .!occursin.(Regex(";"), df_metrics_all.training_population) .&& df_metrics_all.training_population .== df_metrics_all.validation_population,
             )
             df_metrics = df_metrics_all[idx, :]
             x_names = ["model", "trait", "validation_population"]
@@ -250,7 +249,7 @@ function GenomicBreedingPlots.plot(
                     x_levels = begin
                         x_levels_renamed = deepcopy(x_levels)
                         for (i, x_level) in enumerate(x_levels)
-                            if !isnothing(match(Regex(";"), x_level))
+                            if occursin(Regex(";"), x_level)
                                 x_levels_renamed[i] = string("Bulk[", replace.(x_level, ";" => "\n"), "]")
                             end
                         end
@@ -530,8 +529,7 @@ function plot(
         df_metrics, x_names, z_names = if cv_type == "Within population"
             # Within population CV results
             idx = findall(
-                isnothing.(match.(Regex(";"), df_metrics_all.training_population)) .&&
-                df_metrics_all.training_population .== df_metrics_all.validation_population,
+                .!occursin.(Regex(";"), df_metrics_all.training_population) .&& df_metrics_all.training_population .== df_metrics_all.validation_population,
             )
             df_metrics = df_metrics_all[idx, :]
             x_names = ["model", "trait", "validation_population"]
@@ -608,7 +606,7 @@ function plot(
                     x_levels = begin
                         x_levels_renamed = deepcopy(x_levels)
                         for (i, x_level) in enumerate(x_levels)
-                            if !isnothing(match(Regex(";"), x_level))
+                            if occursin(Regex(";"), x_level)
                                 x_levels_renamed[i] = string("Bulk[", replace.(x_level, ";" => "\n"), "]")
                             end
                         end
